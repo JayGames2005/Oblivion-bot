@@ -111,6 +111,7 @@ const statements = {
   getAllModCases: db.prepare('SELECT * FROM mod_cases WHERE guild_id = ? ORDER BY case_number DESC'),
   getUserModCases: db.prepare('SELECT * FROM mod_cases WHERE guild_id = ? AND user_id = ? ORDER BY case_number DESC'),
   getNextCaseNumber: db.prepare('SELECT COALESCE(MAX(case_number), 0) + 1 as next FROM mod_cases WHERE guild_id = ?'),
+  deleteCase: db.prepare('DELETE FROM mod_cases WHERE guild_id = ? AND case_number = ?'),
 
   // Warnings
   addWarning: db.prepare('INSERT INTO warnings (guild_id, user_id, moderator_id, reason, created_at) VALUES (?, ?, ?, ?, ?)'),
