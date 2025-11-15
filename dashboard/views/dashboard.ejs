@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Oblivion Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        nav {
+            background: #667eea;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav h1 {
+            font-size: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .user-info {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .user-info h2 {
+            color: #667eea;
+        }
+
+        .guilds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .guild-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .guild-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .guild-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .guild-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .guild-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .no-guilds {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-guilds h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .no-guilds p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🛡️ Oblivion Bot Dashboard</h1>
+        <div>
+            <a href="/">Home</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="user-info">
+            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="<%= user.username %>">
+            <div>
+                <h2>Welcome, <%= user.username %>!</h2>
+                <p>Select a server to manage</p>
+            </div>
+        </div>
+
+        <% if (guilds.length === 0) { %>
+            <div class="no-guilds">
+                <h2>No Servers Available</h2>
+                <p>You don't have manage permissions in any servers with this bot, or the bot isn't in any of your servers yet.</p>
+            </div>
+        <% } else { %>
+            <div class="guilds-grid">
+                <% guilds.forEach(guild => { %>
+                    <a href="/dashboard/<%= guild.id %>" class="guild-card">
+                        <img src="<%= guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="<%= guild.name %>">
+                        <h3><%= guild.name %></h3>
+                        <p>Click to manage →</p>
+                    </a>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

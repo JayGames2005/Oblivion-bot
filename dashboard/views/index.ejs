@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oblivion Bot - Discord Moderation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h1 {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🛡️ Oblivion Bot</h1>
+        <div class="nav-links">
+            <% if (user) { %>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            <% } else { %>
+                <a href="/login">Login</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>🛡️ Oblivion Moderation Bot</h1>
+            <p>
+                A powerful Discord moderation bot with comprehensive features to keep your server safe and organized.
+                Features include automated moderation, warning systems, mute management, and a beautiful web dashboard.
+            </p>
+
+            <div class="features">
+                <div class="feature">
+                    <h3>👮 Moderation</h3>
+                    <p>Ban, kick, mute, and warn users with detailed logging</p>
+                </div>
+                <div class="feature">
+                    <h3>🤖 Auto-Mod</h3>
+                    <p>Anti-spam, anti-invite, anti-link, and banned words filtering</p>
+                </div>
+                <div class="feature">
+                    <h3>📊 Dashboard</h3>
+                    <p>Manage your server settings through an intuitive web interface</p>
+                </div>
+                <div class="feature">
+                    <h3>📋 Case System</h3>
+                    <p>Track all moderation actions with a comprehensive case system</p>
+                </div>
+            </div>
+
+            <% if (user) { %>
+                <a href="/dashboard" class="cta-button">Go to Dashboard</a>
+            <% } else { %>
+                <a href="/login" class="cta-button">Get Started</a>
+            <% } %>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Oblivion Bot. All rights reserved.</p>
+    </footer>
+</body>
+</html>

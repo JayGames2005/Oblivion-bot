@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= guild.name %> - Oblivion Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        nav h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .server-header {
+            background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .server-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .server-header h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .server-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .server-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .info-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-section, .cases-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .settings-section h2, .cases-section h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group select:hover {
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input {
+            width: auto;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .case-item {
+            padding: 1.25rem;
+            border-left: 4px solid #667eea;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .case-item h4 {
+            color: #667eea;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .case-item p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .case-item p strong {
+            color: #333;
+            min-width: 90px;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #dc3545;
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid #667eea;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card p {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🛡️ Oblivion Bot Dashboard</h1>
+        <div class="nav-links">
+            <a href="/dashboard">← Servers</a>
+            <a href="/">Home</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="server-header">
+            <img src="<%= guild.iconURL() || 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="<%= guild.name %>">
+            <div>
+                <h2><%= guild.name %></h2>
+                <div class="server-info">
+                    <span class="info-badge">👥 <%= guild.memberCount %> Members</span>
+                    <span class="info-badge">💬 <%= guild.channels.cache.filter(c => c.type === 0).size %> Text Channels</span>
+                    <span class="info-badge">🔊 <%= guild.channels.cache.filter(c => c.type === 2).size %> Voice Channels</span>
+                    <span class="info-badge">🎭 <%= guild.roles.cache.size %> Roles</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="icon">📋</div>
+                <h3><%= caseStats.total %></h3>
+                <p>Total Cases</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🔨</div>
+                <h3><%= caseStats.bans %></h3>
+                <p>Bans</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">👢</div>
+                <h3><%= caseStats.kicks %></h3>
+                <p>Kicks</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🔇</div>
+                <h3><%= caseStats.mutes %></h3>
+                <p>Mutes</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⚠️</div>
+                <h3><%= caseStats.warns %></h3>
+                <p>Warnings</p>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>⚙️ Server Settings</h2>
+            <div class="success-message" id="successMessage">✅ Settings saved successfully!</div>
+            <div class="error-message" id="errorMessage">❌ Failed to save settings.</div>
+            
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label for="modLogChannel">📋 Mod Log Channel</label>
+                    <p style="color: #666; font-size: 0.85rem; margin-bottom: 0.5rem;">Choose a channel where all moderation actions will be logged</p>
+                    <select id="modLogChannel" name="modLogChannel">
+                        <option value="">None</option>
+                        <% channels.forEach(channel => { %>
+                            <option value="<%= channel.id %>" <%= settings.mod_log_channel === channel.id ? 'selected' : '' %>>
+                                #<%= channel.name %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="oblivionLogChannel">📜 Oblivion Log Channel</label>
+                    <p style="color: #666; font-size: 0.85rem; margin-bottom: 0.5rem;">Track EVERYTHING: all messages, edits, deletions, channels, roles, emojis, stickers, and more</p>
+                    <select id="oblivionLogChannel" name="oblivionLogChannel">
+                        <option value="">None</option>
+                        <% channels.forEach(channel => { %>
+                            <option value="<%= channel.id %>" <%= settings.oblivion_log_channel === channel.id ? 'selected' : '' %>>
+                                #<%= channel.name %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>🤖 AutoMod Features</label>
+                    <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;">Configure automatic moderation rules and actions</p>
+                    
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <input type="checkbox" id="antiSpam" name="antiSpam" <%= settings.automod_anti_spam ? 'checked' : '' %>>
+                                <label for="antiSpam" style="margin-left: 0.5rem; font-weight: 600;">🚫 Anti-Spam</label>
+                                <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 1.8rem;">Detect 5+ messages in 5 seconds</p>
+                            </div>
+                            <select id="antiSpamAction" name="antiSpamAction" style="width: 200px; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                                <option value="delete" <%= (settings.automod_anti_spam_action || 'delete') === 'delete' ? 'selected' : '' %>>Delete Message</option>
+                                <option value="warn" <%= settings.automod_anti_spam_action === 'warn' ? 'selected' : '' %>>Warn Member</option>
+                                <option value="both" <%= settings.automod_anti_spam_action === 'both' ? 'selected' : '' %>>Delete Message & Warn Member</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <input type="checkbox" id="antiInvite" name="antiInvite" <%= settings.automod_anti_invite ? 'checked' : '' %>>
+                                <label for="antiInvite" style="margin-left: 0.5rem; font-weight: 600;">🔗 Server Invites</label>
+                                <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 1.8rem;">Block Discord server invites</p>
+                            </div>
+                            <select id="antiInviteAction" name="antiInviteAction" style="width: 200px; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                                <option value="delete" <%= (settings.automod_anti_invite_action || 'delete') === 'delete' ? 'selected' : '' %>>Delete Message</option>
+                                <option value="warn" <%= settings.automod_anti_invite_action === 'warn' ? 'selected' : '' %>>Warn Member</option>
+                                <option value="both" <%= settings.automod_anti_invite_action === 'both' ? 'selected' : '' %>>Delete Message & Warn Member</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <input type="checkbox" id="antiLink" name="antiLink" <%= settings.automod_anti_link ? 'checked' : '' %>>
+                                <label for="antiLink" style="margin-left: 0.5rem; font-weight: 600;">🌐 External Links</label>
+                                <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 1.8rem;">Block external website links</p>
+                            </div>
+                            <select id="antiLinkAction" name="antiLinkAction" style="width: 200px; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                                <option value="delete" <%= (settings.automod_anti_link_action || 'delete') === 'delete' ? 'selected' : '' %>>Delete Message</option>
+                                <option value="warn" <%= settings.automod_anti_link_action === 'warn' ? 'selected' : '' %>>Warn Member</option>
+                                <option value="both" <%= settings.automod_anti_link_action === 'both' ? 'selected' : '' %>>Delete Message & Warn Member</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <label style="font-weight: 600;">🤬 Bad Words</label>
+                                <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 0;">Filter banned words and phrases</p>
+                            </div>
+                            <select id="bannedWordsAction" name="bannedWordsAction" style="width: 200px; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                                <option value="delete" <%= (settings.automod_banned_words_action || 'delete') === 'delete' ? 'selected' : '' %>>Delete Message</option>
+                                <option value="warn" <%= settings.automod_banned_words_action === 'warn' ? 'selected' : '' %>>Warn Member</option>
+                                <option value="both" <%= settings.automod_banned_words_action === 'both' ? 'selected' : '' %>>Delete Message & Warn Member</option>
+                            </select>
+                        </div>
+                        <p style="color: #888; font-size: 0.85rem; margin-top: 1rem;">Use <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">/settings banned-words add</code> to add words</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">💾 Save Settings</button>
+            </form>
+        </div>
+
+        <div class="cases-section">
+            <h2>📋 Recent Moderation Cases</h2>
+            <% if (recentCases.length === 0) { %>
+                <div style="text-align: center; padding: 3rem; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                    <p style="font-size: 1.1rem;">No moderation cases yet.</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Cases will appear here when you use moderation commands.</p>
+                </div>
+            <% } else { %>
+                <% recentCases.forEach(modCase => { %>
+                    <div class="case-item">
+                        <h4>Case #<%= modCase.case_number %> — <%= modCase.action %></h4>
+                        <p><strong>👤 User:</strong> <%= modCase.user_tag %></p>
+                        <p><strong>👮 Moderator:</strong> <%= modCase.moderator_tag %></p>
+                        <p><strong>📝 Reason:</strong> <%= modCase.reason %></p>
+                        <p><strong>📅 Date:</strong> <%= new Date(modCase.created_at).toLocaleString() %></p>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                modLogChannel: document.getElementById('modLogChannel').value,
+                oblivionLogChannel: document.getElementById('oblivionLogChannel').value,
+                antiSpam: document.getElementById('antiSpam').checked,
+                antiInvite: document.getElementById('antiInvite').checked,
+                antiLink: document.getElementById('antiLink').checked,
+                antiSpamAction: document.getElementById('antiSpamAction').value,
+                antiInviteAction: document.getElementById('antiInviteAction').value,
+                antiLinkAction: document.getElementById('antiLinkAction').value,
+                bannedWordsAction: document.getElementById('bannedWordsAction').value
+            };
+
+            try {
+                const response = await fetch('/api/guild/<%= guild.id %>/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.style.display = 'block';
+                    setTimeout(() => successMsg.style.display = 'none', 3000);
+                } else {
+                    throw new Error('Failed to save');
+                }
+            } catch (error) {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.style.display = 'block';
+                setTimeout(() => errorMsg.style.display = 'none', 3000);
+            }
+        });
+    </script>
+</body>
+</html>
