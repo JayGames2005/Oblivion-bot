@@ -205,7 +205,7 @@ module.exports = function(client) {
   });
 
   // Start server
-  app.listen(config.port, () => {
+  app.listen(config.port, '0.0.0.0', () => {
     console.log(`\n🌐 Dashboard running at http://localhost:${config.port}`);
   });
 
