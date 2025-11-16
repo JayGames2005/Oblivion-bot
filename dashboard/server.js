@@ -86,7 +86,10 @@ module.exports = function(client) {
       return botGuild && ((parseInt(guild.permissions) & 0x20) === 0x20);
     });
 
-    res.render('dashboard', { guilds: mutualGuilds });
+    res.render('dashboard', { 
+      guilds: mutualGuilds,
+      user: req.user 
+    });
   });
 
   app.get('/dashboard/:guildId', checkAuth, async (req, res) => {

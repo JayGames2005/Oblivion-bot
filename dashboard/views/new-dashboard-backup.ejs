@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oblivion Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root[data-theme="dark"] {
+            --bg-primary: #2C2F33;
+            --bg-secondary: #23272A;
+            --bg-tertiary: #1E2124;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B9BBBE;
+            --accent: #7289DA;
+            --accent-hover: #5B6EAE;
+            --success: #43B581;
+            --danger: #F04747;
+            --warning: #FAA61A;
+            --border: #202225;
+        }
+
+        :root[data-theme="light"] {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F6F6;
+            --bg-tertiary: #EEEEEE;
+            --text-primary: #2C2F33;
+            --text-secondary: #72767D;
+            --accent: #7289DA;
+            --accent-hover: #5B6EAE;
+            --success: #43B581;
+            --danger: #F04747;
+            --warning: #FAA61A;
+            --border: #E3E5E8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(240, 71, 71, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            filter: drop-shadow(0 0 15px rgba(240, 71, 71, 0.6));
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-title {
+            color: #F04747;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links a, .theme-toggle {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover, .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Server Selector */
+        .server-selector {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .server-selector h2 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .server-card {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .server-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(114, 137, 218, 0.3);
+        }
+
+        .server-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .server-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .server-members {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border: 2px solid transparent;
+        }
+
+        .tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.5s ease;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(114, 137, 218, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(67, 181, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .alert-error {
+            background: rgba(240, 71, 71, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* Leaderboard */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(10px);
+            background: var(--border);
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 40px;
+        }
+
+        .leaderboard-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .leaderboard-stat {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(26px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .server-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-brand {
+                gap: 0.5rem;
+            }
+
+            .nav-logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.5rem;
+            }
+
+            .tabs {
+                gap: 0.5rem;
+            }
+
+            .tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">
+            <svg class="nav-logo" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield -->
+                <path d="M100 10 L30 40 L30 110 Q30 170 100 220 Q170 170 170 110 L170 40 Z" 
+                      fill="#1a4d5c" stroke="#2a6d7c" stroke-width="4"/>
+                
+                <!-- Inner Shield -->
+                <path d="M100 30 L45 55 L45 105 Q45 150 100 190 Q155 150 155 105 L155 55 Z" 
+                      fill="#23272a" opacity="0.8"/>
+                
+                <!-- Hood -->
+                <ellipse cx="100" cy="95" rx="35" ry="45" fill="#2c1810"/>
+                <path d="M65 95 Q70 50 100 40 Q130 50 135 95 L135 120 Q130 140 100 145 Q70 140 65 120 Z" 
+                      fill="#c42c2c"/>
+                <path d="M75 95 Q78 65 100 55 Q122 65 125 95 L125 115 Q120 130 100 135 Q80 130 75 115 Z" 
+                      fill="#f04747" opacity="0.9"/>
+                
+                <!-- Face Shadow -->
+                <ellipse cx="100" cy="100" rx="25" ry="30" fill="#000000"/>
+                
+                <!-- Eyes -->
+                <ellipse cx="90" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+                <ellipse cx="110" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="brand-text">
+                <span class="brand-title">OBLIVION</span>
+                <span class="brand-subtitle">DISCORD MODERATION BOT</span>
+            </div>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <% if (user) { %>
+                <div class="user-info">
+                    <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" 
+                         alt="<%= user.username %>" 
+                         class="user-avatar">
+                    <span><%= user.username %></span>
+                </div>
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <% } else { %>
+                <a href="/auth/discord"><i class="fab fa-discord"></i> Login</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="container">
+        <% if (user && guilds) { %>
+            <!-- Server Selector -->
+            <div class="server-selector">
+                <h2><i class="fas fa-server"></i> Select a Server</h2>
+                <div class="server-grid">
+                    <% guilds.forEach(guild => { %>
+                        <a href="/dashboard/<%= guild.id %>" class="server-card" style="text-decoration: none; color: inherit;">
+                            <% if (guild.icon) { %>
+                                <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" 
+                                     alt="<%= guild.name %>" 
+                                     class="server-icon">
+                            <% } else { %>
+                                <div class="server-icon" style="background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 700;">
+                                    <%= guild.name.charAt(0) %>
+                                </div>
+                            <% } %>
+                            <div class="server-name"><%= guild.name %></div>
+                            <div class="server-members">
+                                <i class="fas fa-users"></i> Click to Manage
+                            </div>
+                        </a>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Dashboard Content (shown after selecting server) -->
+            <div id="dashboardContent" style="display: none;">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('overview')">
+                        <i class="fas fa-home"></i> Overview
+                    </div>
+                    <div class="tab" onclick="switchTab('moderation')">
+                        <i class="fas fa-gavel"></i> Moderation
+                    </div>
+                    <div class="tab" onclick="switchTab('leaderboard')">
+                        <i class="fas fa-trophy"></i> Leaderboard
+                    </div>
+                    <div class="tab" onclick="switchTab('welcome')">
+                        <i class="fas fa-door-open"></i> Welcome
+                    </div>
+                    <div class="tab" onclick="switchTab('autorole')">
+                        <i class="fas fa-user-tag"></i> Auto-Role
+                    </div>
+                    <div class="tab" onclick="switchTab('reactions')">
+                        <i class="fas fa-smile"></i> Reaction Roles
+                    </div>
+                    <div class="tab" onclick="switchTab('commands')">
+                        <i class="fas fa-terminal"></i> Custom Commands
+                    </div>
+                    <div class="tab" onclick="switchTab('settings')">
+                        <i class="fas fa-cog"></i> Settings
+                    </div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview" class="content-section active">
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                                    Members
+                                </div>
+                            </div>
+                            <div class="stat-value" id="memberCount">-</div>
+                            <div class="stat-label">Total Members</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <div class="card-icon"><i class="fas fa-hashtag"></i></div>
+                                    Channels
+                                </div>
+                            </div>
+                            <div class="stat-value" id="channelCount">-</div>
+                            <div class="stat-label">Text & Voice Channels</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                                    Roles
+                                </div>
+                            </div>
+                            <div class="stat-value" id="roleCount">-</div>
+                            <div class="stat-label">Server Roles</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                                    Cases
+                                </div>
+                            </div>
+                            <div class="stat-value" id="caseCount">-</div>
+                            <div class="stat-label">Moderation Cases</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moderation Tab -->
+                <div id="moderation" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-gavel"></i> Recent Cases</h2>
+                        <div class="table-container">
+                            <table id="casesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Case #</th>
+                                        <th>Type</th>
+                                        <th>User</th>
+                                        <th>Moderator</th>
+                                        <th>Reason</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="casesBody">
+                                    <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Tab -->
+                <div id="leaderboard" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-trophy"></i> Most Active Members</h2>
+                        <p style="color: var(--text-secondary); margin: 1rem 0;">Coming soon: Track message activity and award top members!</p>
+                        <div id="leaderboardList">
+                            <!-- Placeholder leaderboard -->
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank">1</div>
+                                <div class="leaderboard-avatar" style="background: var(--accent);"></div>
+                                <div class="leaderboard-info">
+                                    <div class="leaderboard-name">Enable message tracking to see leaderboard</div>
+                                    <div class="leaderboard-stat">Feature coming soon</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Message Tab -->
+                <div id="welcome" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-door-open"></i> Welcome Message Designer</h2>
+                        <form id="welcomeForm">
+                            <div class="form-group">
+                                <label class="form-label">Enable Welcome Messages</label>
+                                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Welcome Channel</label>
+                                <select class="form-select" id="welcomeChannel">
+                                    <option>Select a channel...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Welcome Message</label>
+                                <textarea class="form-textarea" placeholder="Welcome {user} to {server}! We now have {memberCount} members!"></textarea>
+                                <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">
+                                    Variables: {user}, {server}, {memberCount}
+                                </small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Welcome Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Auto-Role Tab -->
+                <div id="autorole" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-user-tag"></i> Auto-Role Configuration</h2>
+                        <form id="autoroleForm">
+                            <div class="form-group">
+                                <label class="form-label">Enable Auto-Role</label>
+                                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Role to Assign</label>
+                                <select class="form-select" id="autoroleSelect">
+                                    <option>Select a role...</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Auto-Role
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reaction Roles Tab -->
+                <div id="reactions" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-smile"></i> Reaction Roles Setup</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            Allow users to get roles by reacting to messages
+                        </p>
+                        
+                        <button class="btn btn-primary" onclick="openModal('reactionModal')">
+                            <i class="fas fa-plus"></i> Add Reaction Role
+                        </button>
+
+                        <div id="reactionRolesList" style="margin-top: 1.5rem;">
+                            <p style="color: var(--text-secondary);">No reaction roles configured yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Commands Tab -->
+                <div id="commands" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-terminal"></i> Custom Commands</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            Create custom commands for your server
+                        </p>
+                        
+                        <button class="btn btn-primary" onclick="openModal('commandModal')">
+                            <i class="fas fa-plus"></i> Create Command
+                        </button>
+
+                        <div id="customCommandsList" style="margin-top: 1.5rem;">
+                            <p style="color: var(--text-secondary);">No custom commands yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="content-section">
+                    <div class="card">
+                        <h2><i class="fas fa-cog"></i> Bot Settings</h2>
+                        <form id="settingsForm">
+                            <div class="form-group">
+                                <label class="form-label">Mod Log Channel</label>
+                                <select class="form-select" id="modlogChannel">
+                                    <option>Select a channel...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Oblivion Log Channel</label>
+                                <select class="form-select" id="oblivionlogChannel">
+                                    <option>Select a channel...</option>
+                                </select>
+                            </div>
+
+                            <h3 style="margin: 2rem 0 1rem;">Automod Settings</h3>
+
+                            <div class="form-group">
+                                <label class="form-label">Anti-Spam</label>
+                                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Anti-Invite</label>
+                                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Anti-Link</label>
+                                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <!-- Not logged in -->
+            <div class="card" style="text-align: center; max-width: 600px; margin: 4rem auto;">
+                <i class="fab fa-discord" style="font-size: 4rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                <h1>Welcome to Oblivion</h1>
+                <p style="color: var(--text-secondary); margin: 1rem 0 2rem;">
+                    A powerful moderation bot for Discord with an advanced dashboard
+                </p>
+                <a href="/auth/discord" class="btn btn-primary" style="text-decoration: none;">
+                    <i class="fab fa-discord"></i> Login with Discord
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Modals -->
+    <div id="reactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Reaction Role</h2>
+                <button class="modal-close" onclick="closeModal('reactionModal')">&times;</button>
+            </div>
+            <form id="reactionRoleForm">
+                <div class="form-group">
+                    <label class="form-label">Channel</label>
+                    <select class="form-select">
+                        <option>Select a channel...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message ID</label>
+                    <input type="text" class="form-input" placeholder="Right-click message > Copy ID">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Emoji</label>
+                    <input type="text" class="form-input" placeholder="😀 or custom emoji">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-select">
+                        <option>Select a role...</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="commandModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Custom Command</h2>
+                <button class="modal-close" onclick="closeModal('commandModal')">&times;</button>
+            </div>
+            <form id="customCommandForm">
+                <div class="form-group">
+                    <label class="form-label">Command Name</label>
+                    <input type="text" class="form-input" placeholder="!mycommand">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Response</label>
+                    <textarea class="form-textarea" placeholder="The bot will respond with this message"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentGuildId = null;
+
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = document.getElementById('themeIcon');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        // Mobile Menu
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Toggle Switch
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Modal
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Select Server
+        function selectServer(guildId) {
+            currentGuildId = guildId;
+            document.querySelector('.server-selector').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+            // Load server data
+            loadServerData(guildId);
+        }
+
+        // Load Server Data
+        async function loadServerData(guildId) {
+            try {
+                // Fetch server stats
+                const response = await fetch(`/api/server/${guildId}/stats`);
+                const data = await response.json();
+                
+                console.log('Stats response:', data);
+                
+                if (data.success) {
+                    document.getElementById('memberCount').textContent = data.memberCount || '-';
+                    document.getElementById('channelCount').textContent = data.channelCount || '-';
+                    document.getElementById('roleCount').textContent = data.roleCount || '-';
+                    document.getElementById('caseCount').textContent = data.caseCount || '-';
+                } else {
+                    console.error('Stats API error:', data.error);
+                    // Show error in UI
+                    document.getElementById('memberCount').textContent = 'Error';
+                    document.getElementById('channelCount').textContent = 'Error';
+                    document.getElementById('roleCount').textContent = 'Error';
+                    document.getElementById('caseCount').textContent = 'Error';
+                }
+
+                // Load cases
+                loadCases(guildId);
+                
+                // Load channels for dropdowns
+                loadChannels(guildId);
+                
+                // Load roles for dropdowns
+                loadRoles(guildId);
+            } catch (error) {
+                console.error('Error loading server data:', error);
+                alert('Failed to load server data. Check console for details.');
+            }
+        }
+
+        async function loadCases(guildId) {
+            try {
+                const response = await fetch(`/api/server/${guildId}/cases`);
+                const data = await response.json();
+                
+                console.log('Cases response:', data);
+                
+                const tbody = document.getElementById('casesBody');
+                if (data.success && data.cases && data.cases.length > 0) {
+                    tbody.innerHTML = data.cases.map(c => `
+                        <tr>
+                            <td>#${c.case_number}</td>
+                            <td>${c.action}</td>
+                            <td>${c.user_tag}</td>
+                            <td>${c.moderator_tag}</td>
+                            <td>${c.reason || 'No reason provided'}</td>
+                            <td>${new Date(c.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No cases found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading cases:', error);
+                document.getElementById('casesBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Error loading cases</td></tr>';
+            }
+        }
+
+        async function loadChannels(guildId) {
+            try {
+                const response = await fetch(`/api/server/${guildId}/channels`);
+                const data = await response.json();
+                
+                console.log('Channels response:', data);
+                
+                if (data.success && data.channels) {
+                    const selects = ['welcomeChannel', 'modlogChannel', 'oblivionlogChannel'];
+                    selects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        if (select) {
+                            select.innerHTML = '<option>Select a channel...</option>' + 
+                                data.channels.map(ch => `<option value="${ch.id}">#${ch.name}</option>`).join('');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading channels:', error);
+            }
+        }
+
+        async function loadRoles(guildId) {
+            try {
+                const response = await fetch(`/api/server/${guildId}/roles`);
+                const data = await response.json();
+                
+                console.log('Roles response:', data);
+                
+                if (data.success && data.roles) {
+                    const select = document.getElementById('autoroleSelect');
+                    if (select) {
+                        select.innerHTML = '<option>Select a role...</option>' + 
+                            data.roles.map(role => `<option value="${role.id}">${role.name}</option>`).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading roles:', error);
+            }
+        }
+
+        // Form handlers would go here
+        // These would send requests to the backend API endpoints
+    </script>
+</body>
+</html>
