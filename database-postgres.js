@@ -4,7 +4,11 @@ class PostgresDatabase {
   constructor(connectionString) {
     this.pool = new Pool({
       connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 20, // Maximum number of clients in the pool
+      idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+      connectionTimeoutMillis: 2000, // Timeout connection attempts after 2 seconds
+      statement_timeout: 2000, // Query timeout: 2 seconds
     });
     this.initialized = false;
   }
