@@ -101,6 +101,12 @@ const statements = {
       automod_anti_link = excluded.automod_anti_link,
       automod_banned_words = excluded.automod_banned_words
   `),
+  updateModLogChannel: db.prepare('UPDATE guild_settings SET mod_log_channel = ? WHERE guild_id = ?'),
+  updateOblivionLogChannel: db.prepare('UPDATE guild_settings SET oblivion_log_channel = ? WHERE guild_id = ?'),
+  updateAutomodAntiSpam: db.prepare('UPDATE guild_settings SET automod_anti_spam = ? WHERE guild_id = ?'),
+  updateAutomodAntiInvite: db.prepare('UPDATE guild_settings SET automod_anti_invite = ? WHERE guild_id = ?'),
+  updateAutomodAntiLink: db.prepare('UPDATE guild_settings SET automod_anti_link = ? WHERE guild_id = ?'),
+  updateBannedWords: db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?'),
 
   // Mod Cases
   createModCase: db.prepare(`

@@ -121,8 +121,7 @@ module.exports = {
         }
 
         // Update settings
-        statements.db.prepare('UPDATE guild_settings SET mod_log_channel = ? WHERE guild_id = ?')
-          .run(channel.id, interaction.guild.id);
+        statements.updateModLogChannel.run(channel.id, interaction.guild.id);
 
         await interaction.reply({
           embeds: [Logger.success(`Mod log channel set to ${channel}!`)]
@@ -140,8 +139,7 @@ module.exports = {
         }
 
         // Update settings
-        statements.db.prepare('UPDATE guild_settings SET oblivion_log_channel = ? WHERE guild_id = ?')
-          .run(channel.id, interaction.guild.id);
+        statements.updateOblivionLogChannel.run(channel.id, interaction.guild.id);
 
         await interaction.reply({
           embeds: [Logger.success(`Oblivion log channel set to ${channel}!\n\nThis channel will now track:\n• All messages sent\n• Message edits & deletions\n• Channels created & deleted\n• Roles created & deleted\n• Emojis & stickers added/removed\n• Members joining & leaving`)]
@@ -151,15 +149,14 @@ module.exports = {
         const feature = interaction.options.getString('feature');
         const enabled = interaction.options.getBoolean('enabled');
 
-        const columnMap = {
-          'anti_spam': 'automod_anti_spam',
-          'anti_invite': 'automod_anti_invite',
-          'anti_link': 'automod_anti_link'
+        const statementMap = {
+          'anti_spam': statements.updateAutomodAntiSpam,
+          'anti_invite': statements.updateAutomodAntiInvite,
+          'anti_link': statements.updateAutomodAntiLink
         };
 
-        const column = columnMap[feature];
-        statements.db.prepare(`UPDATE guild_settings SET ${column} = ? WHERE guild_id = ?`)
-          .run(enabled ? 1 : 0, interaction.guild.id);
+        const statement = statementMap[feature];
+        statement.run(enabled ? 1 : 0, interaction.guild.id);
 
         const featureName = feature.replace('_', '-');
         await interaction.reply({
@@ -188,8 +185,7 @@ module.exports = {
           }
 
           bannedWords.push(word.toLowerCase());
-          statements.db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?')
-            .run(JSON.stringify(bannedWords), interaction.guild.id);
+          statements.updateBannedWords.run(JSON.stringify(bannedWords), interaction.guild.id);
 
           await interaction.reply({
             embeds: [Logger.success(`Added "${word}" to banned words list!`)]
@@ -212,8 +208,7 @@ module.exports = {
           }
 
           bannedWords.splice(index, 1);
-          statements.db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?')
-            .run(JSON.stringify(bannedWords), interaction.guild.id);
+          statements.updateBannedWords.run(JSON.stringify(bannedWords), interaction.guild.id);
 
           await interaction.reply({
             embeds: [Logger.success(`Removed "${word}" from banned words list!`)]
@@ -236,8 +231,7 @@ module.exports = {
           await interaction.reply({ embeds: [embed], ephemeral: true });
 
         } else if (action === 'clear') {
-          statements.db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?')
-            .run('[]', interaction.guild.id);
+          statements.updateBannedWords.run('[]', interaction.guild.id);
 
           await interaction.reply({
             embeds: [Logger.success('Cleared all banned words!')]
