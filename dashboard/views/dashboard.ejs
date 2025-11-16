@@ -68,6 +68,40 @@
             font-weight: 700;
         }
 
+        .nav-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(240, 71, 71, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            filter: drop-shadow(0 0 15px rgba(240, 71, 71, 0.6));
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-title {
+            color: #F04747;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
         .nav-links {
             display: flex;
             align-items: center;
@@ -605,6 +639,23 @@
                 padding: 1rem;
             }
 
+            .nav-brand {
+                gap: 0.5rem;
+            }
+
+            .nav-logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.5rem;
+            }
+
             .tabs {
                 gap: 0.5rem;
             }
@@ -612,6 +663,18 @@
             .tab {
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
             }
         }
 
@@ -628,8 +691,37 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-brand">
-            <i class="fas fa-shield-alt"></i>
-            Oblivion
+            <svg class="nav-logo" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield -->
+                <path d="M100 10 L30 40 L30 110 Q30 170 100 220 Q170 170 170 110 L170 40 Z" 
+                      fill="#1a4d5c" stroke="#2a6d7c" stroke-width="4"/>
+                
+                <!-- Inner Shield -->
+                <path d="M100 30 L45 55 L45 105 Q45 150 100 190 Q155 150 155 105 L155 55 Z" 
+                      fill="#23272a" opacity="0.8"/>
+                
+                <!-- Hood -->
+                <ellipse cx="100" cy="95" rx="35" ry="45" fill="#2c1810"/>
+                <path d="M65 95 Q70 50 100 40 Q130 50 135 95 L135 120 Q130 140 100 145 Q70 140 65 120 Z" 
+                      fill="#c42c2c"/>
+                <path d="M75 95 Q78 65 100 55 Q122 65 125 95 L125 115 Q120 130 100 135 Q80 130 75 115 Z" 
+                      fill="#f04747" opacity="0.9"/>
+                
+                <!-- Face Shadow -->
+                <ellipse cx="100" cy="100" rx="25" ry="30" fill="#000000"/>
+                
+                <!-- Eyes -->
+                <ellipse cx="90" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+                <ellipse cx="110" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="brand-text">
+                <span class="brand-title">OBLIVION</span>
+                <span class="brand-subtitle">DISCORD MODERATION BOT</span>
+            </div>
         </div>
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
             <i class="fas fa-bars"></i>
