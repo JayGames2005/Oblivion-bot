@@ -10,6 +10,7 @@ const USE_POSTGRES = !!DATABASE_URL;
 let db;
 let isPostgres = false;
 let statements = null;
+let initPromise = null;
 
 if (USE_POSTGRES) {
   console.log('🐘 Using PostgreSQL database');
@@ -18,7 +19,7 @@ if (USE_POSTGRES) {
   
   // Initialize PostgreSQL tables
   console.log('⏳ Starting PostgreSQL table initialization...');
-  db.initialize()
+  initPromise = db.initialize()
     .then(() => console.log('✅ PostgreSQL tables initialized successfully'))
     .catch(err => {
       console.error('❌ Failed to initialize PostgreSQL:', err);
@@ -163,5 +164,6 @@ if (USE_POSTGRES) {
 module.exports = {
   db,
   statements,
-  isPostgres
+  isPostgres,
+  ready: () => initPromise || Promise.resolve()
 };
