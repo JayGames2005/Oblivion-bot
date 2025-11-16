@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 
 module.exports = {
@@ -32,15 +32,17 @@ module.exports = {
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
 
+    // Defer reply immediately to prevent timeout
+    await interaction.deferReply();
+
     try {
       if (subcommand === 'view') {
         const caseNumber = interaction.options.getInteger('case_number');
-        const modCase = statements.getModCase.get(interaction.guild.id, caseNumber);
+        const modCase = await DatabaseHelper.getModCase(interaction.guild.id, caseNumber);
 
         if (!modCase) {
-          return interaction.reply({ 
-            embeds: [Logger.error('Case not found!')], 
-            ephemeral: true 
+          return interaction.editReply({ 
+            embeds: [Logger.error('Case not found!')]
           });
         }
 
@@ -56,14 +58,14 @@ module.exports = {
           )
           .setTimestamp(modCase.created_at);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
 
       } else if (subcommand === 'user') {
         const user = interaction.options.getUser('user');
-        const cases = statements.getUserModCases.all(interaction.guild.id, user.id);
+        const cases = await DatabaseHelper.getUserModCases(interaction.guild.id, user.id);
 
         if (cases.length === 0) {
-          return interaction.reply({
+          return interaction.editReply({
             embeds: [Logger.info(`**${user.tag}** has no moderation cases.`)]
           });
         }
@@ -92,13 +94,13 @@ module.exports = {
           embed.setFooter({ text: `Showing 25 of ${cases.length} cases` });
         }
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
 
       } else if (subcommand === 'list') {
-        const cases = statements.getAllModCases.all(interaction.guild.id);
+        const cases = await DatabaseHelper.getAllModCases(interaction.guild.id);
 
         if (cases.length === 0) {
-          return interaction.reply({
+          return interaction.editReply({
             embeds: [Logger.info('No moderation cases found.')]
           });
         }
@@ -126,14 +128,13 @@ module.exports = {
           embed.setFooter({ text: `Showing 10 of ${cases.length} cases` });
         }
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
       }
 
     } catch (error) {
       console.error('Error fetching cases:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to fetch cases.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to fetch cases.')]
       });
     }
   }
