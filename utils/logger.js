@@ -7,24 +7,11 @@ class Logger {
    */
   static async logAction(guild, action, user, moderator, reason, duration = null) {
     try {
-      // Get guild settings to find log channel
-      const settings = statements.getGuildSettings.get(guild.id);
-      
-      if (!settings || !settings.mod_log_channel) {
-        return; // No log channel configured
-      }
-
-      const logChannel = guild.channels.cache.get(settings.mod_log_channel);
-      
-      if (!logChannel) {
-        return; // Channel doesn't exist
-      }
-
       // Create case number
       const nextCase = statements.getNextCaseNumber.get(guild.id);
       const caseNumber = nextCase.next;
 
-      // Save to database
+      // Save to database (always create the case)
       statements.createModCase.run(
         guild.id,
         caseNumber,
@@ -37,23 +24,32 @@ class Logger {
         Date.now()
       );
 
-      // Create embed
-      const embed = new EmbedBuilder()
-        .setTitle(`${this.getActionEmoji(action)} Case #${caseNumber} | ${action}`)
-        .setColor(this.getActionColor(action))
-        .addFields(
-          { name: '👤 User', value: `${user.tag} (${user.id})`, inline: true },
-          { name: '👮 Moderator', value: `${moderator.tag} (${moderator.id})`, inline: true },
-          { name: '📝 Reason', value: reason || 'No reason provided', inline: false }
-        )
-        .setTimestamp()
-        .setFooter({ text: `Case ${caseNumber}` });
+      // Try to send to log channel if configured
+      const settings = statements.getGuildSettings.get(guild.id);
+      
+      if (settings && settings.mod_log_channel) {
+        const logChannel = guild.channels.cache.get(settings.mod_log_channel);
+        
+        if (logChannel) {
+          // Create embed
+          const embed = new EmbedBuilder()
+            .setTitle(`${this.getActionEmoji(action)} Case #${caseNumber} | ${action}`)
+            .setColor(this.getActionColor(action))
+            .addFields(
+              { name: '👤 User', value: `${user.tag} (${user.id})`, inline: true },
+              { name: '👮 Moderator', value: `${moderator.tag} (${moderator.id})`, inline: true },
+              { name: '📝 Reason', value: reason || 'No reason provided', inline: false }
+            )
+            .setTimestamp()
+            .setFooter({ text: `Case ${caseNumber}` });
 
-      if (duration) {
-        embed.addFields({ name: '⏱️ Duration', value: duration, inline: false });
+          if (duration) {
+            embed.addFields({ name: '⏱️ Duration', value: duration, inline: false });
+          }
+
+          await logChannel.send({ embeds: [embed] });
+        }
       }
-
-      await logChannel.send({ embeds: [embed] });
       
       return caseNumber;
     } catch (error) {
