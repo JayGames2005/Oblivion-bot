@@ -204,6 +204,131 @@ module.exports = function(client) {
     }
   });
 
+  // API: Get server stats
+  app.get('/api/server/:guildId/stats', checkAuth, async (req, res) => {
+    try {
+      const { guildId } = req.params;
+      const guild = client.guilds.cache.get(guildId);
+      
+      if (!guild) {
+        return res.json({ success: false, error: 'Guild not found' });
+      }
+
+      // Check permissions
+      const member = guild.members.cache.get(req.user.id);
+      if (!member || !member.permissions.has('ManageGuild')) {
+        return res.json({ success: false, error: 'No permission' });
+      }
+
+      const cases = statements.getAllModCases.all(guildId);
+
+      res.json({
+        success: true,
+        memberCount: guild.memberCount,
+        channelCount: guild.channels.cache.size,
+        roleCount: guild.roles.cache.size,
+        caseCount: cases.length
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      res.json({ success: false, error: 'Failed to fetch stats' });
+    }
+  });
+
+  // API: Get server cases
+  app.get('/api/server/:guildId/cases', checkAuth, async (req, res) => {
+    try {
+      const { guildId } = req.params;
+      const guild = client.guilds.cache.get(guildId);
+      
+      if (!guild) {
+        return res.json({ success: false, error: 'Guild not found' });
+      }
+
+      // Check permissions
+      const member = guild.members.cache.get(req.user.id);
+      if (!member || !member.permissions.has('ManageGuild')) {
+        return res.json({ success: false, error: 'No permission' });
+      }
+
+      const cases = statements.getAllModCases.all(guildId);
+
+      res.json({
+        success: true,
+        cases: cases.slice(0, 50) // Return last 50 cases
+      });
+    } catch (error) {
+      console.error('Error fetching cases:', error);
+      res.json({ success: false, error: 'Failed to fetch cases' });
+    }
+  });
+
+  // API: Get server channels
+  app.get('/api/server/:guildId/channels', checkAuth, async (req, res) => {
+    try {
+      const { guildId } = req.params;
+      const guild = client.guilds.cache.get(guildId);
+      
+      if (!guild) {
+        return res.json({ success: false, error: 'Guild not found' });
+      }
+
+      // Check permissions
+      const member = guild.members.cache.get(req.user.id);
+      if (!member || !member.permissions.has('ManageGuild')) {
+        return res.json({ success: false, error: 'No permission' });
+      }
+
+      const channels = guild.channels.cache
+        .filter(ch => ch.type === 0) // Text channels only
+        .map(ch => ({
+          id: ch.id,
+          name: ch.name
+        }));
+
+      res.json({
+        success: true,
+        channels
+      });
+    } catch (error) {
+      console.error('Error fetching channels:', error);
+      res.json({ success: false, error: 'Failed to fetch channels' });
+    }
+  });
+
+  // API: Get server roles
+  app.get('/api/server/:guildId/roles', checkAuth, async (req, res) => {
+    try {
+      const { guildId } = req.params;
+      const guild = client.guilds.cache.get(guildId);
+      
+      if (!guild) {
+        return res.json({ success: false, error: 'Guild not found' });
+      }
+
+      // Check permissions
+      const member = guild.members.cache.get(req.user.id);
+      if (!member || !member.permissions.has('ManageGuild')) {
+        return res.json({ success: false, error: 'No permission' });
+      }
+
+      const roles = guild.roles.cache
+        .filter(role => role.id !== guild.id) // Exclude @everyone
+        .map(role => ({
+          id: role.id,
+          name: role.name
+        }));
+
+      res.json({
+        success: true,
+        roles
+      });
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      res.json({ success: false, error: 'Failed to fetch roles' });
+    }
+  });
+
   // Start server
   app.listen(config.port, '0.0.0.0', () => {
     console.log(`\n🌐 Dashboard running at http://localhost:${config.port}`);
