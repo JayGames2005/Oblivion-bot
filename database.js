@@ -17,10 +17,13 @@ if (USE_POSTGRES) {
   isPostgres = true;
   
   // Initialize PostgreSQL tables
-  db.initialize().catch(err => {
-    console.error('Failed to initialize PostgreSQL:', err);
-    process.exit(1);
-  });
+  console.log('⏳ Starting PostgreSQL table initialization...');
+  db.initialize()
+    .then(() => console.log('✅ PostgreSQL tables initialized successfully'))
+    .catch(err => {
+      console.error('❌ Failed to initialize PostgreSQL:', err);
+      process.exit(1);
+    });
 } else {
   console.log('💾 Using SQLite database');
   // Ensure data directory exists
