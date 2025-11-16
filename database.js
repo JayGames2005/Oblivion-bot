@@ -9,6 +9,7 @@ const USE_POSTGRES = !!DATABASE_URL;
 
 let db;
 let isPostgres = false;
+let statements = null;
 
 if (USE_POSTGRES) {
   console.log('🐘 Using PostgreSQL database');
@@ -106,7 +107,7 @@ if (USE_POSTGRES) {
   } catch (e) { /* Column already exists */ }
 
   // Prepared statements for better performance (SQLite only)
-  const statements = {
+  statements = {
     // Guild Settings
     getGuildSettings: db.prepare('SELECT * FROM guild_settings WHERE guild_id = ?'),
     setGuildSettings: db.prepare(`
@@ -158,6 +159,6 @@ if (USE_POSTGRES) {
 
 module.exports = {
   db,
-  statements: isPostgres ? null : statements,
+  statements,
   isPostgres
 };
