@@ -1174,11 +1174,20 @@
                 const response = await fetch(`/api/server/${guildId}/stats`);
                 const data = await response.json();
                 
+                console.log('Stats response:', data);
+                
                 if (data.success) {
                     document.getElementById('memberCount').textContent = data.memberCount || '-';
                     document.getElementById('channelCount').textContent = data.channelCount || '-';
                     document.getElementById('roleCount').textContent = data.roleCount || '-';
                     document.getElementById('caseCount').textContent = data.caseCount || '-';
+                } else {
+                    console.error('Stats API error:', data.error);
+                    // Show error in UI
+                    document.getElementById('memberCount').textContent = 'Error';
+                    document.getElementById('channelCount').textContent = 'Error';
+                    document.getElementById('roleCount').textContent = 'Error';
+                    document.getElementById('caseCount').textContent = 'Error';
                 }
 
                 // Load cases
@@ -1191,6 +1200,7 @@
                 loadRoles(guildId);
             } catch (error) {
                 console.error('Error loading server data:', error);
+                alert('Failed to load server data. Check console for details.');
             }
         }
 
@@ -1199,15 +1209,17 @@
                 const response = await fetch(`/api/server/${guildId}/cases`);
                 const data = await response.json();
                 
+                console.log('Cases response:', data);
+                
                 const tbody = document.getElementById('casesBody');
-                if (data.cases && data.cases.length > 0) {
+                if (data.success && data.cases && data.cases.length > 0) {
                     tbody.innerHTML = data.cases.map(c => `
                         <tr>
                             <td>#${c.case_number}</td>
                             <td>${c.action}</td>
                             <td>${c.user_tag}</td>
                             <td>${c.moderator_tag}</td>
-                            <td>${c.reason}</td>
+                            <td>${c.reason || 'No reason provided'}</td>
                             <td>${new Date(c.created_at).toLocaleDateString()}</td>
                         </tr>
                     `).join('');
@@ -1216,6 +1228,7 @@
                 }
             } catch (error) {
                 console.error('Error loading cases:', error);
+                document.getElementById('casesBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Error loading cases</td></tr>';
             }
         }
 
@@ -1224,7 +1237,9 @@
                 const response = await fetch(`/api/server/${guildId}/channels`);
                 const data = await response.json();
                 
-                if (data.channels) {
+                console.log('Channels response:', data);
+                
+                if (data.success && data.channels) {
                     const selects = ['welcomeChannel', 'modlogChannel', 'oblivionlogChannel'];
                     selects.forEach(selectId => {
                         const select = document.getElementById(selectId);
@@ -1244,7 +1259,9 @@
                 const response = await fetch(`/api/server/${guildId}/roles`);
                 const data = await response.json();
                 
-                if (data.roles) {
+                console.log('Roles response:', data);
+                
+                if (data.success && data.roles) {
                     const select = document.getElementById('autoroleSelect');
                     if (select) {
                         select.innerHTML = '<option>Select a role...</option>' + 
