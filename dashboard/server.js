@@ -203,17 +203,29 @@ module.exports = function(client) {
       const guild = client.guilds.cache.get(guildId);
       
       if (!guild) {
+        console.log('Guild not found:', guildId);
         return res.json({ success: false, error: 'Guild not found' });
       }
 
-      // Check permissions
-      const member = guild.members.cache.get(req.user.id);
-      if (!member || !member.permissions.has('ManageGuild')) {
+      // Fetch member if not in cache
+      let member = guild.members.cache.get(req.user.id);
+      if (!member) {
+        try {
+          member = await guild.members.fetch(req.user.id);
+        } catch (err) {
+          console.log('Member not found in guild:', req.user.id, guildId);
+          return res.json({ success: false, error: 'Not a member of this guild' });
+        }
+      }
+
+      if (!member.permissions.has('ManageGuild')) {
+        console.log('No permission:', req.user.id, guildId);
         return res.json({ success: false, error: 'No permission' });
       }
 
       const cases = await DatabaseHelper.getAllModCases(guildId);
 
+      console.log('Stats fetched successfully for', guildId);
       res.json({
         success: true,
         memberCount: guild.memberCount,
@@ -237,14 +249,23 @@ module.exports = function(client) {
         return res.json({ success: false, error: 'Guild not found' });
       }
 
-      // Check permissions
-      const member = guild.members.cache.get(req.user.id);
-      if (!member || !member.permissions.has('ManageGuild')) {
+      // Fetch member if not in cache
+      let member = guild.members.cache.get(req.user.id);
+      if (!member) {
+        try {
+          member = await guild.members.fetch(req.user.id);
+        } catch (err) {
+          return res.json({ success: false, error: 'Not a member of this guild' });
+        }
+      }
+
+      if (!member.permissions.has('ManageGuild')) {
         return res.json({ success: false, error: 'No permission' });
       }
 
       const cases = await DatabaseHelper.getAllModCases(guildId);
 
+      console.log('Cases fetched successfully for', guildId, '- Count:', cases.length);
       res.json({
         success: true,
         cases: cases.slice(0, 50) // Return last 50 cases
@@ -265,9 +286,17 @@ module.exports = function(client) {
         return res.json({ success: false, error: 'Guild not found' });
       }
 
-      // Check permissions
-      const member = guild.members.cache.get(req.user.id);
-      if (!member || !member.permissions.has('ManageGuild')) {
+      // Fetch member if not in cache
+      let member = guild.members.cache.get(req.user.id);
+      if (!member) {
+        try {
+          member = await guild.members.fetch(req.user.id);
+        } catch (err) {
+          return res.json({ success: false, error: 'Not a member of this guild' });
+        }
+      }
+
+      if (!member.permissions.has('ManageGuild')) {
         return res.json({ success: false, error: 'No permission' });
       }
 
@@ -298,9 +327,17 @@ module.exports = function(client) {
         return res.json({ success: false, error: 'Guild not found' });
       }
 
-      // Check permissions
-      const member = guild.members.cache.get(req.user.id);
-      if (!member || !member.permissions.has('ManageGuild')) {
+      // Fetch member if not in cache
+      let member = guild.members.cache.get(req.user.id);
+      if (!member) {
+        try {
+          member = await guild.members.fetch(req.user.id);
+        } catch (err) {
+          return res.json({ success: false, error: 'Not a member of this guild' });
+        }
+      }
+
+      if (!member.permissions.has('ManageGuild')) {
         return res.json({ success: false, error: 'No permission' });
       }
 
