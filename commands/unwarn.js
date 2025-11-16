@@ -5,63 +5,76 @@ const Logger = require('../utils/logger');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('unwarn')
-    .setDescription('Remove a warning from a user')
-    .addIntegerOption(option =>
-      option.setName('warning_id')
-        .setDescription('The ID of the warning to remove')
+    .setDescription('Remove warnings from a user')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('The user to remove warnings from')
         .setRequired(true))
+    .addIntegerOption(option =>
+      option.setName('amount')
+        .setDescription('Number of warnings to remove (default: 1, use 0 for all)')
+        .setMinValue(0)
+        .setRequired(false))
     .addStringOption(option =>
       option.setName('reason')
-        .setDescription('Reason for removing the warning')
+        .setDescription('Reason for removing the warnings')
         .setRequired(false))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .setDMPermission(false),
 
   async execute(interaction) {
-    const warningId = interaction.options.getInteger('warning_id');
+    const user = interaction.options.getUser('user');
+    const amount = interaction.options.getInteger('amount') ?? 1;
     const reason = interaction.options.getString('reason') || 'No reason provided';
 
     try {
-      // Get warning
-      const warning = statements.db.prepare('SELECT * FROM warnings WHERE id = ? AND guild_id = ?').get(warningId, interaction.guild.id);
+      // Get user's warnings
+      const warnings = statements.getWarnings.all(interaction.guild.id, user.id);
 
-      if (!warning) {
+      if (warnings.length === 0) {
         return interaction.reply({ 
-          embeds: [Logger.error('Warning not found!')], 
+          embeds: [Logger.error(`**${user.tag}** has no warnings to remove!`)], 
           ephemeral: true 
         });
       }
 
-      // Get user
-      const user = await interaction.client.users.fetch(warning.user_id).catch(() => null);
+      let removed = 0;
 
-      // Delete warning
-      statements.deleteWarning.run(warningId);
+      if (amount === 0) {
+        // Remove all warnings
+        statements.clearWarnings.run(interaction.guild.id, user.id);
+        removed = warnings.length;
+      } else {
+        // Remove specified amount
+        const toRemove = Math.min(amount, warnings.length);
+        for (let i = 0; i < toRemove; i++) {
+          statements.deleteWarning.run(warnings[i].id);
+          removed++;
+        }
+      }
 
       // Log the action
-      if (user) {
-        await Logger.logAction(
-          interaction.guild,
-          'Unwarn',
-          user,
-          interaction.user,
-          `Removed warning #${warningId}: ${reason}`
-        );
-      }
+      await Logger.logAction(
+        interaction.guild,
+        'Unwarn',
+        user,
+        interaction.user,
+        `Removed ${removed} warning(s): ${reason}`
+      );
 
       // Reply
       await interaction.reply({
         embeds: [Logger.success(
-          `Warning #${warningId} has been removed!\n` +
-          `**User:** ${user ? user.tag : 'Unknown'}\n` +
+          `Removed **${removed}** warning(s) from **${user.tag}**!\n` +
+          `**Remaining:** ${warnings.length - removed}\n` +
           `**Reason:** ${reason}`
         )]
       });
 
     } catch (error) {
-      console.error('Error removing warning:', error);
+      console.error('Error removing warnings:', error);
       await interaction.reply({ 
-        embeds: [Logger.error('Failed to remove warning.')], 
+        embeds: [Logger.error('Failed to remove warnings.')], 
         ephemeral: true 
       });
     }
