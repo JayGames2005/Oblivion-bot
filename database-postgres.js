@@ -101,27 +101,27 @@ class PostgresDatabase {
     `, [guildId, prefix, modLogChannel, muteRole, antiSpam, antiInvite, antiLink, bannedWords]);
   }
 
-  async updateModLogChannel(guildId, channelId) {
+  async updateModLogChannel(channelId, guildId) {
     await this.pool.query('UPDATE guild_settings SET mod_log_channel = $1 WHERE guild_id = $2', [channelId, guildId]);
   }
 
-  async updateOblivionLogChannel(guildId, channelId) {
+  async updateOblivionLogChannel(channelId, guildId) {
     await this.pool.query('UPDATE guild_settings SET oblivion_log_channel = $1 WHERE guild_id = $2', [channelId, guildId]);
   }
 
-  async updateAutomodAntiSpam(guildId, enabled) {
+  async updateAutomodAntiSpam(enabled, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_anti_spam = $1 WHERE guild_id = $2', [enabled, guildId]);
   }
 
-  async updateAutomodAntiInvite(guildId, enabled) {
+  async updateAutomodAntiInvite(enabled, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_anti_invite = $1 WHERE guild_id = $2', [enabled, guildId]);
   }
 
-  async updateAutomodAntiLink(guildId, enabled) {
+  async updateAutomodAntiLink(enabled, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_anti_link = $1 WHERE guild_id = $2', [enabled, guildId]);
   }
 
-  async updateBannedWords(guildId, words) {
+  async updateBannedWords(words, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_banned_words = $1 WHERE guild_id = $2', [words, guildId]);
   }
 
