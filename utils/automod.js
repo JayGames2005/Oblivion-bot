@@ -1,4 +1,4 @@
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('./logger');
 
 // Track message spam
@@ -12,7 +12,7 @@ class AutoMod {
     if (!message.guild || message.author.bot) return;
 
     // Get guild settings
-    const settings = statements.getGuildSettings.get(message.guild.id);
+    const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
     if (!settings) return;
 
     // Check anti-spam
@@ -124,7 +124,7 @@ class AutoMod {
       // Warn the user if needed
       if (shouldWarn) {
         // Add warning to database
-        statements.addWarning.run(
+        await DatabaseHelper.addWarning(
           message.guild.id,
           message.author.id,
           message.client.user.id,
@@ -132,7 +132,7 @@ class AutoMod {
         );
 
         // Get warning count
-        const warnings = statements.getWarnings.all(message.guild.id, message.author.id);
+        const warnings = await DatabaseHelper.getWarnings(message.guild.id, message.author.id);
 
         // Log the warning
         await Logger.logAction(

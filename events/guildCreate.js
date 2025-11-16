@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const config = require('../config');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
     // Create default settings for the guild
     try {
       const settings = config.defaultSettings;
-      statements.setGuildSettings.run(
+      await DatabaseHelper.setGuildSettings(
         guild.id,
         settings.prefix,
         settings.modLogChannel,

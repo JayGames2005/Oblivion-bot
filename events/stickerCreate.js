@@ -1,12 +1,12 @@
 const { Events, EmbedBuilder, AuditLogEvent } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.GuildStickerCreate,
   async execute(sticker) {
     try {
       // Get guild settings
-      const settings = statements.getGuildSettings.get(sticker.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(sticker.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = sticker.guild.channels.cache.get(settings.oblivion_log_channel);

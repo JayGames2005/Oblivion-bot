@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 class Logger {
   /**
@@ -8,11 +8,10 @@ class Logger {
   static async logAction(guild, action, user, moderator, reason, duration = null) {
     try {
       // Create case number
-      const nextCase = statements.getNextCaseNumber.get(guild.id);
-      const caseNumber = nextCase.next;
+      const caseNumber = await DatabaseHelper.getNextCaseNumber(guild.id);
 
       // Save to database (always create the case)
-      statements.createModCase.run(
+      await DatabaseHelper.createModCase(
         guild.id,
         caseNumber,
         user.id,
@@ -25,7 +24,7 @@ class Logger {
       );
 
       // Try to send to log channel if configured
-      const settings = statements.getGuildSettings.get(guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(guild.id);
       
       if (settings && settings.mod_log_channel) {
         const logChannel = guild.channels.cache.get(settings.mod_log_channel);

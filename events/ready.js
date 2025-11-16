@@ -58,14 +58,14 @@ async function registerSlashCommands(client) {
 }
 
 function startMuteChecker(client) {
-  const { statements } = require('../database');
+  const DatabaseHelper = require('../database-helper');
   const Logger = require('../utils/logger');
 
   // Check every 30 seconds for expired timeouts
   setInterval(async () => {
     try {
       const now = Date.now();
-      const expiredMutes = statements.getExpiredMutes.all(now);
+      const expiredMutes = await DatabaseHelper.getExpiredMutes(now);
 
       for (const mute of expiredMutes) {
         const guild = client.guilds.cache.get(mute.guild_id);
@@ -73,13 +73,13 @@ function startMuteChecker(client) {
 
         const member = await guild.members.fetch(mute.user_id).catch(() => null);
         if (!member) {
-          statements.removeMute.run(mute.guild_id, mute.user_id);
+          await DatabaseHelper.removeMute(mute.guild_id, mute.user_id);
           continue;
         }
 
         // Discord's native timeout should handle this automatically,
         // but we remove from database for cleanup
-        statements.removeMute.run(mute.guild_id, mute.user_id);
+        await DatabaseHelper.removeMute(mute.guild_id, mute.user_id);
 
         console.log(`🔊 Cleaned up expired timeout for ${member.user.tag} in ${guild.name}`);
       }

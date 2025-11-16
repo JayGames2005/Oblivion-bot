@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder, ChannelType, AuditLogEvent } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.ChannelDelete,
@@ -8,7 +8,7 @@ module.exports = {
       if (!channel.guild) return;
 
       // Get guild settings
-      const settings = statements.getGuildSettings.get(channel.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(channel.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = channel.guild.channels.cache.get(settings.oblivion_log_channel);

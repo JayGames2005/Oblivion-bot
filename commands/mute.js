@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 const { canModerate, parseDuration, formatDuration } = require('../utils/helpers');
 
@@ -23,6 +23,8 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const target = interaction.options.getUser('user');
     const durationStr = interaction.options.getString('duration');
     const reason = interaction.options.getString('reason') || 'No reason provided';
@@ -30,43 +32,38 @@ module.exports = {
     // Check if user can be moderated
     const moderationCheck = canModerate(interaction.member, target, interaction.guild);
     if (!moderationCheck.canModerate) {
-      return interaction.reply({ 
-        embeds: [Logger.error(moderationCheck.reason)], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error(moderationCheck.reason)]
       });
     }
 
     // Get member
     const member = await interaction.guild.members.fetch(target.id).catch(() => null);
     if (!member) {
-      return interaction.reply({ 
-        embeds: [Logger.error('That user is not in this server!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('That user is not in this server!')]
       });
     }
 
     // Check bot permissions
     if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      return interaction.reply({ 
-        embeds: [Logger.error('I don\'t have permission to timeout members!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('I don\'t have permission to timeout members!')]
       });
     }
 
     // Parse duration
     const duration = parseDuration(durationStr);
     if (!duration) {
-      return interaction.reply({ 
-        embeds: [Logger.error('Invalid duration format! Use formats like: 1h, 30m, 1d')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('Invalid duration format! Use formats like: 1h, 30m, 1d')]
       });
     }
 
     // Discord timeout max is 28 days (2419200000 ms)
     if (duration > 2419200000) {
-      return interaction.reply({ 
-        embeds: [Logger.error('Duration cannot exceed 28 days!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('Duration cannot exceed 28 days!')]
       });
     }
 
@@ -78,7 +75,7 @@ module.exports = {
       await member.timeout(duration, `${reason} | By ${interaction.user.tag}`);
 
       // Save to database
-      statements.addMute.run(
+      await DatabaseHelper.addMute(
         interaction.guild.id,
         target.id,
         expiresAt,
@@ -110,7 +107,7 @@ module.exports = {
       );
 
       // Reply
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [Logger.success(
           `**${target.tag}** has been timed out!\n` +
           `**Duration:** ${durationText}\n` +
@@ -121,9 +118,8 @@ module.exports = {
 
     } catch (error) {
       console.error('Error timing out user:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to timeout user. Make sure I have the proper permissions.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to timeout user. Make sure I have the proper permissions.')]
       });
     }
   }

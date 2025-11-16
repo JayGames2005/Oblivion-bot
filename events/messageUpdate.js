@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.MessageUpdate,
@@ -13,7 +13,7 @@ module.exports = {
       if (oldMessage.content === newMessage.content) return;
 
       // Get guild settings
-      const settings = statements.getGuildSettings.get(newMessage.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(newMessage.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = newMessage.guild.channels.cache.get(settings.oblivion_log_channel);

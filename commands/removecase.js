@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,20 +14,22 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const caseId = interaction.options.getInteger('case_id');
 
     // Check if case exists
-    const existingCase = statements.getCase.get(interaction.guildId, caseId);
+    const existingCase = await DatabaseHelper.getCase(interaction.guildId, caseId);
     
     if (!existingCase) {
-      return interaction.reply({
+      return interaction.editReply({
         content: `❌ Case #${caseId} not found.`,
-        ephemeral: true
+        flags: ['Ephemeral']
       });
     }
 
     // Delete the case
-    statements.deleteCase.run(interaction.guildId, caseId);
+    await DatabaseHelper.deleteCase(interaction.guildId, caseId);
 
     const embed = new EmbedBuilder()
       .setColor('#FF0000')
@@ -41,6 +43,6 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: `Removed by ${interaction.user.tag}` });
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed] });
   }
 };

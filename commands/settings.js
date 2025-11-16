@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ChannelType } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 const config = require('../config');
 
@@ -68,14 +68,16 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const subcommand = interaction.options.getSubcommand();
 
     try {
       // Ensure guild settings exist
-      let settings = statements.getGuildSettings.get(interaction.guild.id);
+      let settings = await DatabaseHelper.getGuildSettings(interaction.guild.id);
       if (!settings) {
         const defaults = config.defaultSettings;
-        statements.setGuildSettings.run(
+        await DatabaseHelper.setGuildSettings(
           interaction.guild.id,
           defaults.prefix,
           defaults.modLogChannel,
@@ -85,7 +87,7 @@ module.exports = {
           defaults.automod.antiLink ? 1 : 0,
           JSON.stringify(defaults.automod.bannedWords)
         );
-        settings = statements.getGuildSettings.get(interaction.guild.id);
+        settings = await DatabaseHelper.getGuildSettings(interaction.guild.id);
       }
 
       if (subcommand === 'view') {
@@ -107,23 +109,22 @@ module.exports = {
           )
           .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
 
       } else if (subcommand === 'modlog') {
         const channel = interaction.options.getChannel('channel');
 
         // Check bot permissions in channel
         if (!channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.SendMessages)) {
-          return interaction.reply({ 
-            embeds: [Logger.error('I don\'t have permission to send messages in that channel!')], 
-            ephemeral: true 
+          return interaction.editReply({ 
+            embeds: [Logger.error('I don\'t have permission to send messages in that channel!')]
           });
         }
 
         // Update settings
-        statements.updateModLogChannel.run(channel.id, interaction.guild.id);
+        await DatabaseHelper.updateModLogChannel(channel.id, interaction.guild.id);
 
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [Logger.success(`Mod log channel set to ${channel}!`)]
         });
 
@@ -132,16 +133,15 @@ module.exports = {
 
         // Check bot permissions in channel
         if (!channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.SendMessages)) {
-          return interaction.reply({ 
-            embeds: [Logger.error('I don\'t have permission to send messages in that channel!')], 
-            ephemeral: true 
+          return interaction.editReply({ 
+            embeds: [Logger.error('I don\'t have permission to send messages in that channel!')]
           });
         }
 
         // Update settings
-        statements.updateOblivionLogChannel.run(channel.id, interaction.guild.id);
+        await DatabaseHelper.updateOblivionLogChannel(channel.id, interaction.guild.id);
 
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [Logger.success(`Oblivion log channel set to ${channel}!\n\nThis channel will now track:\n• All messages sent\n• Message edits & deletions\n• Channels created & deleted\n• Roles created & deleted\n• Emojis & stickers added/removed\n• Members joining & leaving`)]
         });
 
@@ -149,17 +149,17 @@ module.exports = {
         const feature = interaction.options.getString('feature');
         const enabled = interaction.options.getBoolean('enabled');
 
-        const statementMap = {
-          'anti_spam': statements.updateAutomodAntiSpam,
-          'anti_invite': statements.updateAutomodAntiInvite,
-          'anti_link': statements.updateAutomodAntiLink
+        const methodMap = {
+          'anti_spam': 'updateAutomodAntiSpam',
+          'anti_invite': 'updateAutomodAntiInvite',
+          'anti_link': 'updateAutomodAntiLink'
         };
 
-        const statement = statementMap[feature];
-        statement.run(enabled ? 1 : 0, interaction.guild.id);
+        const method = methodMap[feature];
+        await DatabaseHelper[method](enabled ? 1 : 0, interaction.guild.id);
 
         const featureName = feature.replace('_', '-');
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [Logger.success(`${featureName} has been ${enabled ? 'enabled' : 'disabled'}!`)]
         });
 
@@ -171,53 +171,50 @@ module.exports = {
 
         if (action === 'add') {
           if (!word) {
-            return interaction.reply({ 
-              embeds: [Logger.error('Please specify a word to add!')], 
-              ephemeral: true 
+            return interaction.editReply({ 
+              embeds: [Logger.error('Please specify a word to add!')]
             });
           }
 
           if (bannedWords.includes(word.toLowerCase())) {
-            return interaction.reply({ 
-              embeds: [Logger.error('That word is already banned!')], 
-              ephemeral: true 
+            return interaction.editReply({ 
+              embeds: [Logger.error('That word is already banned!')]
             });
           }
 
           bannedWords.push(word.toLowerCase());
-          statements.updateBannedWords.run(JSON.stringify(bannedWords), interaction.guild.id);
+          await DatabaseHelper.updateBannedWords(JSON.stringify(bannedWords), interaction.guild.id);
 
-          await interaction.reply({
+          await interaction.editReply({
             embeds: [Logger.success(`Added "${word}" to banned words list!`)]
           });
 
         } else if (action === 'remove') {
           if (!word) {
-            return interaction.reply({ 
-              embeds: [Logger.error('Please specify a word to remove!')], 
-              ephemeral: true 
+            return interaction.editReply({ 
+              embeds: [Logger.error('Please specify a word to remove!')]
             });
           }
 
           const index = bannedWords.indexOf(word.toLowerCase());
           if (index === -1) {
-            return interaction.reply({ 
-              embeds: [Logger.error('That word is not in the banned list!')], 
-              ephemeral: true 
+            return interaction.editReply({ 
+              embeds: [Logger.error('That word is not in the banned list!')]
             });
           }
 
           bannedWords.splice(index, 1);
-          statements.updateBannedWords.run(JSON.stringify(bannedWords), interaction.guild.id);
+          await DatabaseHelper.updateBannedWords(JSON.stringify(bannedWords), interaction.guild.id);
 
-          await interaction.reply({
+          await interaction.editReply({
             embeds: [Logger.success(`Removed "${word}" from banned words list!`)]
           });
 
         } else if (action === 'list') {
           if (bannedWords.length === 0) {
-            return interaction.reply({
-              embeds: [Logger.info('No banned words configured.')]
+            return interaction.editReply({
+              embeds: [Logger.info('No banned words configured.')],
+              flags: ['Ephemeral']
             });
           }
 
@@ -228,12 +225,12 @@ module.exports = {
             .setFooter({ text: `Total: ${bannedWords.length} word(s)` })
             .setTimestamp();
 
-          await interaction.reply({ embeds: [embed], ephemeral: true });
+          await interaction.editReply({ embeds: [embed], flags: ['Ephemeral'] });
 
         } else if (action === 'clear') {
-          statements.updateBannedWords.run('[]', interaction.guild.id);
+          await DatabaseHelper.updateBannedWords('[]', interaction.guild.id);
 
-          await interaction.reply({
+          await interaction.editReply({
             embeds: [Logger.success('Cleared all banned words!')]
           });
         }
@@ -241,9 +238,8 @@ module.exports = {
 
     } catch (error) {
       console.error('Error updating settings:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to update settings.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to update settings.')]
       });
     }
   }

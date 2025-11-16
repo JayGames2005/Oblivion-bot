@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.MessageDelete,
@@ -9,7 +9,7 @@ module.exports = {
 
     try {
       // Get guild settings
-      const settings = statements.getGuildSettings.get(message.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
       if (!settings) return;
 
       // Check if message was deleted from mod log channel

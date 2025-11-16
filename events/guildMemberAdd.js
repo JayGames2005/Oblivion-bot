@@ -1,12 +1,12 @@
 const { Events, EmbedBuilder } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.GuildMemberAdd,
   async execute(member) {
     try {
       // Get guild settings
-      const settings = statements.getGuildSettings.get(member.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(member.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = member.guild.channels.cache.get(settings.oblivion_log_channel);

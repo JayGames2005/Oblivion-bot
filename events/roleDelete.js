@@ -1,12 +1,12 @@
 const { Events, EmbedBuilder, AuditLogEvent } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.GuildRoleDelete,
   async execute(role) {
     try {
       // Get guild settings
-      const settings = statements.getGuildSettings.get(role.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(role.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = role.guild.channels.cache.get(settings.oblivion_log_channel);

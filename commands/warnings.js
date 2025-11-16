@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 
 module.exports = {
@@ -14,14 +14,16 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const target = interaction.options.getUser('user');
 
     try {
       // Get warnings
-      const warnings = statements.getWarnings.all(interaction.guild.id, target.id);
+      const warnings = await DatabaseHelper.getWarnings(interaction.guild.id, target.id);
 
       if (warnings.length === 0) {
-        return interaction.reply({
+        return interaction.editReply({
           embeds: [Logger.info(`**${target.tag}** has no warnings.`)]
         });
       }
@@ -52,13 +54,12 @@ module.exports = {
         embed.setFooter({ text: `Showing 25 of ${warnings.length} warnings` });
       }
 
-      await interaction.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
 
     } catch (error) {
       console.error('Error fetching warnings:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to fetch warnings.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to fetch warnings.')]
       });
     }
   }

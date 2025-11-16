@@ -1,6 +1,6 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const AutoMod = require('../utils/automod');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.MessageCreate,
@@ -13,7 +13,7 @@ module.exports = {
 
     // Log message to Oblivion logs
     try {
-      const settings = statements.getGuildSettings.get(message.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
       if (settings && settings.oblivion_log_channel) {
         const logChannel = message.guild.channels.cache.get(settings.oblivion_log_channel);
         if (logChannel && logChannel.id !== message.channel.id) {

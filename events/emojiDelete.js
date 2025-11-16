@@ -1,12 +1,12 @@
 const { Events, EmbedBuilder, AuditLogEvent } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 
 module.exports = {
   name: Events.GuildEmojiDelete,
   async execute(emoji) {
     try {
       // Get guild settings
-      const settings = statements.getGuildSettings.get(emoji.guild.id);
+      const settings = await DatabaseHelper.getGuildSettings(emoji.guild.id);
       if (!settings || !settings.oblivion_log_channel) return;
 
       const logChannel = emoji.guild.channels.cache.get(settings.oblivion_log_channel);

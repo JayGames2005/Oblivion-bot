@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 const { canModerate } = require('../utils/helpers');
 
@@ -19,21 +19,22 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const target = interaction.options.getUser('user');
     const reason = interaction.options.getString('reason');
 
     // Check if user can be moderated
     const moderationCheck = canModerate(interaction.member, target, interaction.guild);
     if (!moderationCheck.canModerate) {
-      return interaction.reply({ 
-        embeds: [Logger.error(moderationCheck.reason)], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error(moderationCheck.reason)]
       });
     }
 
     try {
       // Add warning to database
-      statements.addWarning.run(
+      await DatabaseHelper.addWarning(
         interaction.guild.id,
         target.id,
         interaction.user.id,
@@ -42,7 +43,7 @@ module.exports = {
       );
 
       // Get warning count
-      const warningCount = statements.getWarningCount.get(interaction.guild.id, target.id);
+      const warningCount = await DatabaseHelper.getWarningCount(interaction.guild.id, target.id);
 
       // Try to DM the user
       try {
@@ -68,7 +69,7 @@ module.exports = {
       );
 
       // Reply
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [Logger.success(
           `**${target.tag}** has been warned!\n` +
           `**Reason:** ${reason}\n` +
@@ -79,9 +80,8 @@ module.exports = {
 
     } catch (error) {
       console.error('Error warning user:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to warn user.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to warn user.')]
       });
     }
   }

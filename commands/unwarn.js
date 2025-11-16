@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 
 module.exports = {
@@ -23,18 +23,19 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const user = interaction.options.getUser('user');
     const amount = interaction.options.getInteger('amount') ?? 1;
     const reason = interaction.options.getString('reason') || 'No reason provided';
 
     try {
       // Get user's warnings
-      const warnings = statements.getWarnings.all(interaction.guild.id, user.id);
+      const warnings = await DatabaseHelper.getWarnings(interaction.guild.id, user.id);
 
       if (warnings.length === 0) {
-        return interaction.reply({ 
-          embeds: [Logger.error(`**${user.tag}** has no warnings to remove!`)], 
-          ephemeral: true 
+        return interaction.editReply({ 
+          embeds: [Logger.error(`**${user.tag}** has no warnings to remove!`)]
         });
       }
 
@@ -42,13 +43,13 @@ module.exports = {
 
       if (amount === 0) {
         // Remove all warnings
-        statements.clearWarnings.run(interaction.guild.id, user.id);
+        await DatabaseHelper.clearWarnings(interaction.guild.id, user.id);
         removed = warnings.length;
       } else {
         // Remove specified amount
         const toRemove = Math.min(amount, warnings.length);
         for (let i = 0; i < toRemove; i++) {
-          statements.deleteWarning.run(warnings[i].id);
+          await DatabaseHelper.deleteWarning(warnings[i].id);
           removed++;
         }
       }
@@ -63,7 +64,7 @@ module.exports = {
       );
 
       // Reply
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [Logger.success(
           `Removed **${removed}** warning(s) from **${user.tag}**!\n` +
           `**Remaining:** ${warnings.length - removed}\n` +
@@ -73,9 +74,8 @@ module.exports = {
 
     } catch (error) {
       console.error('Error removing warnings:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to remove warnings.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to remove warnings.')]
       });
     }
   }

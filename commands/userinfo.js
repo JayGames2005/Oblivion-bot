@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 
 module.exports = {
@@ -13,21 +13,22 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const user = interaction.options.getUser('user') || interaction.user;
     const member = await interaction.guild.members.fetch(user.id).catch(() => null);
 
     if (!member) {
-      return interaction.reply({ 
-        embeds: [Logger.error('That user is not in this server!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('That user is not in this server!')]
       });
     }
 
     try {
       // Get user stats
-      const warnings = statements.getWarningCount.get(interaction.guild.id, user.id);
-      const cases = statements.getUserModCases.all(interaction.guild.id, user.id);
-      const mute = statements.getMute.get(interaction.guild.id, user.id);
+      const warnings = await DatabaseHelper.getWarningCount(interaction.guild.id, user.id);
+      const cases = await DatabaseHelper.getUserModCases(interaction.guild.id, user.id);
+      const mute = await DatabaseHelper.getMute(interaction.guild.id, user.id);
 
       // Create embed
       const embed = new EmbedBuilder()
@@ -97,13 +98,12 @@ module.exports = {
       embed.setFooter({ text: `Requested by ${interaction.user.tag}` })
         .setTimestamp();
 
-      await interaction.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
 
     } catch (error) {
       console.error('Error fetching user info:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to fetch user information.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to fetch user information.')]
       });
     }
   }

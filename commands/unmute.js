@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { statements } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const Logger = require('../utils/logger');
 const { canModerate } = require('../utils/helpers');
 
@@ -19,40 +19,38 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     const target = interaction.options.getUser('user');
     const reason = interaction.options.getString('reason') || 'No reason provided';
 
     // Check if user can be moderated
     const moderationCheck = canModerate(interaction.member, target, interaction.guild);
     if (!moderationCheck.canModerate) {
-      return interaction.reply({ 
-        embeds: [Logger.error(moderationCheck.reason)], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error(moderationCheck.reason)]
       });
     }
 
     // Get member
     const member = await interaction.guild.members.fetch(target.id).catch(() => null);
     if (!member) {
-      return interaction.reply({ 
-        embeds: [Logger.error('That user is not in this server!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('That user is not in this server!')]
       });
     }
 
     // Check if user is timed out
     if (!member.communicationDisabledUntilTimestamp) {
-      return interaction.reply({ 
-        embeds: [Logger.error('That user is not timed out!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('That user is not timed out!')]
       });
     }
 
     // Check bot permissions
     if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      return interaction.reply({ 
-        embeds: [Logger.error('I don\'t have permission to manage timeouts!')], 
-        ephemeral: true 
+      return interaction.editReply({ 
+        embeds: [Logger.error('I don\'t have permission to manage timeouts!')]
       });
     }
 
@@ -61,7 +59,7 @@ module.exports = {
       await member.timeout(null, `${reason} | By ${interaction.user.tag}`);
 
       // Remove from database
-      statements.removeMute.run(interaction.guild.id, target.id);
+      await DatabaseHelper.removeMute(interaction.guild.id, target.id);
 
       // Try to DM the user
       try {
@@ -86,7 +84,7 @@ module.exports = {
       );
 
       // Reply
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [Logger.success(
           `**${target.tag}** has been unmuted!\n` +
           `**Reason:** ${reason}\n` +
@@ -96,9 +94,8 @@ module.exports = {
 
     } catch (error) {
       console.error('Error unmuting user:', error);
-      await interaction.reply({ 
-        embeds: [Logger.error('Failed to unmute user. Make sure I have the proper permissions.')], 
-        ephemeral: true 
+      await interaction.editReply({ 
+        embeds: [Logger.error('Failed to unmute user. Make sure I have the proper permissions.')]
       });
     }
   }
