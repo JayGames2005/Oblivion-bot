@@ -13,33 +13,73 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f6fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
 
         nav {
-            background: #667eea;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
             color: white;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
-        nav h1 {
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-logo {
+            width: 45px;
+            height: 45px;
+            filter: drop-shadow(0 0 10px rgba(240, 71, 71, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            filter: drop-shadow(0 0 20px rgba(240, 71, 71, 0.7));
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-title {
+            color: #F04747;
             font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(240, 71, 71, 0.3);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.65rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background 0.3s;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
         }
 
         nav a:hover {
             background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
         .container {
@@ -49,86 +89,190 @@
         }
 
         .user-info {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .user-info img {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
+            border: 3px solid #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .user-info h2 {
             color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 1rem;
         }
 
         .guilds-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
         }
 
         .guild-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guild-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .guild-card:hover::before {
+            left: 100%;
         }
 
         .guild-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
         }
 
         .guild-card img {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            border: 3px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .guild-card:hover img {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
         .guild-card h3 {
             color: #667eea;
             margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
         }
 
         .guild-card p {
-            color: #666;
-            font-size: 0.9rem;
+            color: #888;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
 
         .no-guilds {
             text-align: center;
-            padding: 3rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         }
 
         .no-guilds h2 {
             color: #667eea;
             margin-bottom: 1rem;
+            font-size: 2rem;
         }
 
         .no-guilds p {
             color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .nav-brand {
+                gap: 0.5rem;
+            }
+
+            .nav-logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.5rem;
+            }
+
+            .guilds-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-info h2 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav>
-        <h1>🛡️ Oblivion Bot Dashboard</h1>
+        <div class="nav-brand">
+            <svg class="nav-logo" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield -->
+                <path d="M100 10 L30 40 L30 110 Q30 170 100 220 Q170 170 170 110 L170 40 Z" 
+                      fill="#1a4d5c" stroke="#2a6d7c" stroke-width="4"/>
+                
+                <!-- Inner Shield -->
+                <path d="M100 30 L45 55 L45 105 Q45 150 100 190 Q155 150 155 105 L155 55 Z" 
+                      fill="#23272a" opacity="0.8"/>
+                
+                <!-- Hood -->
+                <ellipse cx="100" cy="95" rx="35" ry="45" fill="#2c1810"/>
+                <path d="M65 95 Q70 50 100 40 Q130 50 135 95 L135 120 Q130 140 100 145 Q70 140 65 120 Z" 
+                      fill="#c42c2c"/>
+                <path d="M75 95 Q78 65 100 55 Q122 65 125 95 L125 115 Q120 130 100 135 Q80 130 75 115 Z" 
+                      fill="#f04747" opacity="0.9"/>
+                
+                <!-- Face Shadow -->
+                <ellipse cx="100" cy="100" rx="25" ry="30" fill="#000000"/>
+                
+                <!-- Eyes -->
+                <ellipse cx="90" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+                <ellipse cx="110" cy="95" rx="8" ry="4" fill="#f04747" opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="brand-text">
+                <span class="brand-title">OBLIVION</span>
+                <span class="brand-subtitle">DISCORD MODERATION BOT</span>
+            </div>
+        </div>
         <div>
             <a href="/">Home</a>
             <a href="/logout">Logout</a>
