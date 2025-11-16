@@ -3,7 +3,8 @@ const session = require('express-session');
 const passport = require('passport');
 const { Strategy } = require('passport-discord');
 const path = require('path');
-const { statements, db } = require('../database');
+const { statements, db, isPostgres } = require('../database');
+const DatabaseHelper = require('../database-helper');
 const config = require('../config');
 
 module.exports = function(client) {
@@ -111,10 +112,10 @@ module.exports = function(client) {
 
     try {
       // Get guild data
-      let settings = statements.getGuildSettings.get(guildId);
+      let settings = await DatabaseHelper.getGuildSettings(guildId);
       if (!settings) {
         const defaults = config.defaultSettings;
-        statements.setGuildSettings.run(
+        await DatabaseHelper.setGuildSettings(
           guildId,
           defaults.prefix,
           defaults.modLogChannel,
@@ -124,10 +125,10 @@ module.exports = function(client) {
           defaults.automod.antiLink ? 1 : 0,
           JSON.stringify(defaults.automod.bannedWords)
         );
-        settings = statements.getGuildSettings.get(guildId);
+        settings = await DatabaseHelper.getGuildSettings(guildId);
       }
 
-      const cases = statements.getAllModCases.all(guildId);
+      const cases = await DatabaseHelper.getAllModCases(guildId);
       
       // Get recent cases (last 10)
       const recentCases = cases.slice(0, 10);
@@ -172,30 +173,21 @@ module.exports = function(client) {
     try {
       const { modLogChannel, oblivionLogChannel, antiSpam, antiInvite, antiLink, antiSpamAction, antiInviteAction, antiLinkAction, bannedWordsAction } = req.body;
 
-      db.prepare(`
-        UPDATE guild_settings 
-        SET mod_log_channel = ?, 
-            oblivion_log_channel = ?,
-            automod_anti_spam = ?,
-            automod_anti_invite = ?,
-            automod_anti_link = ?,
-            automod_anti_spam_action = ?,
-            automod_anti_invite_action = ?,
-            automod_anti_link_action = ?,
-            automod_banned_words_action = ?
-        WHERE guild_id = ?
-      `).run(
-        modLogChannel || null,
-        oblivionLogChannel || null,
-        antiSpam ? 1 : 0,
-        antiInvite ? 1 : 0,
-        antiLink ? 1 : 0,
-        antiSpamAction || 'delete',
-        antiInviteAction || 'delete',
-        antiLinkAction || 'delete',
-        bannedWordsAction || 'delete',
-        guildId
-      );
+      if (modLogChannel) {
+        await DatabaseHelper.updateModLogChannel(guildId, modLogChannel);
+      }
+      if (oblivionLogChannel) {
+        await DatabaseHelper.updateOblivionLogChannel(guildId, oblivionLogChannel);
+      }
+      if (typeof antiSpam !== 'undefined') {
+        await DatabaseHelper.updateAutomodAntiSpam(guildId, antiSpam ? 1 : 0);
+      }
+      if (typeof antiInvite !== 'undefined') {
+        await DatabaseHelper.updateAutomodAntiInvite(guildId, antiInvite ? 1 : 0);
+      }
+      if (typeof antiLink !== 'undefined') {
+        await DatabaseHelper.updateAutomodAntiLink(guildId, antiLink ? 1 : 0);
+      }
 
       res.json({ success: true });
     } catch (error) {
@@ -220,7 +212,7 @@ module.exports = function(client) {
         return res.json({ success: false, error: 'No permission' });
       }
 
-      const cases = statements.getAllModCases.all(guildId);
+      const cases = await DatabaseHelper.getAllModCases(guildId);
 
       res.json({
         success: true,
@@ -251,7 +243,7 @@ module.exports = function(client) {
         return res.json({ success: false, error: 'No permission' });
       }
 
-      const cases = statements.getAllModCases.all(guildId);
+      const cases = await DatabaseHelper.getAllModCases(guildId);
 
       res.json({
         success: true,
