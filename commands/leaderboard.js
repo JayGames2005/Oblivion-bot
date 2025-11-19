@@ -16,12 +16,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    try {
-      await interaction.deferReply();
-    } catch (err) {
-      console.error('Failed to defer leaderboard:', err);
-      return;
-    }
+    await interaction.reply({ content: '📊 Loading leaderboard...' });
 
     const timeframe = interaction.options.getString('timeframe') || 'alltime';
     

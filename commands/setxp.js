@@ -27,6 +27,8 @@ module.exports = {
       });
     }
 
+    await interaction.reply({ content: '⏳ Setting XP...', flags: 64 });
+
     try {
       const targetUser = interaction.options.getUser('user');
       const xpAmount = interaction.options.getInteger('amount');

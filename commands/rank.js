@@ -12,9 +12,10 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.reply({ content: '🎯 Loading rank...' });
 
-    const user = interaction.options.getUser('user') || interaction.user;
-    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
+    const targetUser = interaction.options.getUser('user') || interaction.user;
+    const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
 
     if (!member) {
       return interaction.editReply({
