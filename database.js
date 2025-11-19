@@ -54,7 +54,8 @@ if (USE_POSTGRES) {
       automod_anti_invite_action TEXT DEFAULT 'delete',
       automod_anti_link_action TEXT DEFAULT 'delete',
       automod_banned_words_action TEXT DEFAULT 'delete',
-      level_up_messages INTEGER DEFAULT 1
+      level_up_messages INTEGER DEFAULT 1,
+      achievement_messages INTEGER DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS mod_cases (
@@ -187,6 +188,7 @@ if (USE_POSTGRES) {
     updateAutomodAntiLink: db.prepare('UPDATE guild_settings SET automod_anti_link = ? WHERE guild_id = ?'),
     updateBannedWords: db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?'),
     updateLevelUpMessages: db.prepare('UPDATE guild_settings SET level_up_messages = ? WHERE guild_id = ?'),
+    updateAchievementMessages: db.prepare('UPDATE guild_settings SET achievement_messages = ? WHERE guild_id = ?'),
 
     // Mod Cases
     createModCase: db.prepare(`

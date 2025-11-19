@@ -189,6 +189,7 @@ module.exports = function(client) {
         antiLinkAction, 
         bannedWordsAction,
         levelUpMessages,
+        achievementMessages,
         // Message achievements
         msg100Role,
         msg500Role, 
@@ -227,6 +228,9 @@ module.exports = function(client) {
       }
       if (typeof levelUpMessages !== 'undefined') {
         await DatabaseHelper.updateLevelUpMessages(guildId, levelUpMessages ? 1 : 0);
+      }
+      if (typeof achievementMessages !== 'undefined') {
+        await DatabaseHelper.updateAchievementMessages(guildId, achievementMessages ? 1 : 0);
       }
 
       // Save all 15 achievement role settings

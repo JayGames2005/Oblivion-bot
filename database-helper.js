@@ -75,6 +75,14 @@ class DatabaseHelper {
       statements.updateLevelUpMessages.run(enabled, guildId);
     }
   }
+
+  static async updateAchievementMessages(guildId, enabled) {
+    if (isPostgres) {
+      await db.updateAchievementMessages(enabled, guildId);
+    } else {
+      statements.updateAchievementMessages.run(enabled, guildId);
+    }
+  }
   // Mod Cases
   static async createModCase(guildId, caseNumber, userId, userTag, moderatorId, moderatorTag, action, reason, createdAt) {
     if (isPostgres) {

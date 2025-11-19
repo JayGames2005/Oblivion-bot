@@ -596,6 +596,14 @@
                             <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 1.8rem;">Show announcements when users level up</p>
                         </div>
                     </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-top: 1rem;">
+                        <div>
+                            <input type="checkbox" id="achievementMessages" name="achievementMessages" <%= !settings || settings.achievement_messages === undefined || settings.achievement_messages === 1 ? 'checked' : '' %>>
+                            <label for="achievementMessages" style="margin-left: 0.5rem; font-weight: 600;">🏆 Achievement Messages</label>
+                            <p style="color: #888; font-size: 0.85rem; margin: 0.25rem 0 0 1.8rem;">Show announcements when users unlock achievements (messages, voice, reactions)</p>
+                        </div>
+                    </div>
                 </div>
                 </div>
 
@@ -892,6 +900,7 @@
                 antiLinkAction: document.getElementById('antiLinkAction').value,
                 bannedWordsAction: document.getElementById('bannedWordsAction').value,
                 levelUpMessages: document.getElementById('levelUpMessages').checked,
+                achievementMessages: document.getElementById('achievementMessages').checked,
                 // Message Achievements
                 msg100Role: document.getElementById('msg100Role').value,
                 msg500Role: document.getElementById('msg500Role').value,

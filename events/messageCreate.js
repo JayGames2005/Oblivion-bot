@@ -121,13 +121,19 @@ module.exports = {
             if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
           }
           
-          const achievementEmbed = new EmbedBuilder()
-            .setColor(achievementData.color)
-            .setTitle('🏆 Achievement Unlocked!')
-            .setDescription(`${message.author} earned the **${achievementData.name}** achievement!\n${achievementData.emoji} Sent ${achievementData.count} messages`)
-            .setTimestamp();
+          // Check if achievement announcements are enabled
+          const guildSettings = await DatabaseHelper.getGuildSettings(message.guild.id);
+          const achievementMessagesEnabled = !guildSettings || guildSettings.achievement_messages === undefined || guildSettings.achievement_messages === 1;
           
-          await message.channel.send({ embeds: [achievementEmbed] });
+          if (achievementMessagesEnabled) {
+            const achievementEmbed = new EmbedBuilder()
+              .setColor(achievementData.color)
+              .setTitle('🏆 Achievement Unlocked!')
+              .setDescription(`${message.author} earned the **${achievementData.name}** achievement!\n${achievementData.emoji} Sent ${achievementData.count} messages`)
+              .setTimestamp();
+            
+            await message.channel.send({ embeds: [achievementEmbed] });
+          }
         }
       }
     } catch (error) {
