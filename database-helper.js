@@ -274,11 +274,11 @@ class DatabaseHelper {
     }
   }
 
-  static async setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000) {
+  static async setAchievementSettings(guildId, msg100, msg500, msg1000, msg5000, msg10000, vc30, vc60, vc500, vc1000, vc5000, react50, react250, react1000, popular100, popular500) {
     if (isPostgres) {
-      await db.setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000);
+      await db.setAchievementSettings(guildId, msg100, msg500, msg1000, msg5000, msg10000, vc30, vc60, vc500, vc1000, vc5000, react50, react250, react1000, popular100, popular500);
     } else {
-      statements.setAchievementSettings.run(guildId, msg500, msg1000, msg2000, vc60, vc2000);
+      statements.setAchievementSettings.run(guildId, msg100, msg500, msg1000, msg5000, msg10000, vc30, vc60, vc500, vc1000, vc5000, react50, react250, react1000, popular100, popular500);
     }
   }
 
@@ -312,6 +312,22 @@ class DatabaseHelper {
       await db.addUserVoiceTime(guildId, userId, minutes);
     } else {
       statements.addUserVoiceTime.run(guildId, userId, minutes);
+    }
+  }
+
+  static async incrementReactionsGiven(guildId, userId) {
+    if (isPostgres) {
+      await db.incrementReactionsGiven(guildId, userId);
+    } else {
+      statements.incrementReactionsGiven.run(guildId, userId);
+    }
+  }
+
+  static async incrementReactionsReceived(guildId, userId) {
+    if (isPostgres) {
+      await db.incrementReactionsReceived(guildId, userId);
+    } else {
+      statements.incrementReactionsReceived.run(guildId, userId);
     }
   }
 

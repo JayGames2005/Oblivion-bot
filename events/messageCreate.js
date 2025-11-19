@@ -63,62 +63,66 @@ module.exports = {
         const member = message.member;
         const rolesToRemove = [];
         let roleToAdd = null;
+        let achievementData = null;
 
         // Check message milestones (highest tier wins, remove lower tiers)
-        if (messages >= 2000 && achievementSettings.msg_2000_role) {
-          roleToAdd = achievementSettings.msg_2000_role;
+        if (messages >= 10000 && achievementSettings.msg_10000_role) {
+          roleToAdd = achievementSettings.msg_10000_role;
+          if (achievementSettings.msg_100_role) rolesToRemove.push(achievementSettings.msg_100_role);
+          if (achievementSettings.msg_500_role) rolesToRemove.push(achievementSettings.msg_500_role);
+          if (achievementSettings.msg_1000_role) rolesToRemove.push(achievementSettings.msg_1000_role);
+          if (achievementSettings.msg_5000_role) rolesToRemove.push(achievementSettings.msg_5000_role);
+          
+          if (!member.roles.cache.has(roleToAdd)) {
+            achievementData = { key: 'msg_10000', name: 'Legendary Chatter', emoji: '💎', count: '10,000', color: 0x00FFFF };
+          }
+        } else if (messages >= 5000 && achievementSettings.msg_5000_role) {
+          roleToAdd = achievementSettings.msg_5000_role;
+          if (achievementSettings.msg_100_role) rolesToRemove.push(achievementSettings.msg_100_role);
           if (achievementSettings.msg_500_role) rolesToRemove.push(achievementSettings.msg_500_role);
           if (achievementSettings.msg_1000_role) rolesToRemove.push(achievementSettings.msg_1000_role);
           
           if (!member.roles.cache.has(roleToAdd)) {
-            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_2000');
-            await member.roles.add(roleToAdd);
-            for (const roleId of rolesToRemove) {
-              if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
-            }
-            
-            const achievementEmbed = new EmbedBuilder()
-              .setColor(0xFFD700)
-              .setTitle('🏆 Achievement Unlocked!')
-              .setDescription(`${message.author} earned the **Chatterbox III** achievement!\n📮 Sent 2,000 messages`)
-              .setTimestamp();
-            
-            await message.channel.send({ embeds: [achievementEmbed] });
+            achievementData = { key: 'msg_5000', name: 'Elite Chatter', emoji: '📮', count: '5,000', color: 0xFFD700 };
           }
         } else if (messages >= 1000 && achievementSettings.msg_1000_role) {
           roleToAdd = achievementSettings.msg_1000_role;
+          if (achievementSettings.msg_100_role) rolesToRemove.push(achievementSettings.msg_100_role);
           if (achievementSettings.msg_500_role) rolesToRemove.push(achievementSettings.msg_500_role);
           
           if (!member.roles.cache.has(roleToAdd)) {
-            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_1000');
-            await member.roles.add(roleToAdd);
-            for (const roleId of rolesToRemove) {
-              if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
-            }
-            
-            const achievementEmbed = new EmbedBuilder()
-              .setColor(0xC0C0C0)
-              .setTitle('🏆 Achievement Unlocked!')
-              .setDescription(`${message.author} earned the **Chatterbox II** achievement!\n📬 Sent 1,000 messages`)
-              .setTimestamp();
-            
-            await message.channel.send({ embeds: [achievementEmbed] });
+            achievementData = { key: 'msg_1000', name: 'Dedicated Chatter', emoji: '📬', count: '1,000', color: 0xC0C0C0 };
           }
         } else if (messages >= 500 && achievementSettings.msg_500_role) {
           roleToAdd = achievementSettings.msg_500_role;
+          if (achievementSettings.msg_100_role) rolesToRemove.push(achievementSettings.msg_100_role);
           
           if (!member.roles.cache.has(roleToAdd)) {
-            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_500');
-            await member.roles.add(roleToAdd);
-            
-            const achievementEmbed = new EmbedBuilder()
-              .setColor(0xCD7F32)
-              .setTitle('🏆 Achievement Unlocked!')
-              .setDescription(`${message.author} earned the **Chatterbox I** achievement!\n📨 Sent 500 messages`)
-              .setTimestamp();
-            
-            await message.channel.send({ embeds: [achievementEmbed] });
+            achievementData = { key: 'msg_500', name: 'Active Chatter', emoji: '📨', count: '500', color: 0xCD7F32 };
           }
+        } else if (messages >= 100 && achievementSettings.msg_100_role) {
+          roleToAdd = achievementSettings.msg_100_role;
+          
+          if (!member.roles.cache.has(roleToAdd)) {
+            achievementData = { key: 'msg_100', name: 'Newbie Chatter', emoji: '💬', count: '100', color: 0x95a5a6 };
+          }
+        }
+
+        // Grant role and announce
+        if (achievementData && roleToAdd) {
+          await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, achievementData.key);
+          await member.roles.add(roleToAdd);
+          for (const roleId of rolesToRemove) {
+            if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
+          }
+          
+          const achievementEmbed = new EmbedBuilder()
+            .setColor(achievementData.color)
+            .setTitle('🏆 Achievement Unlocked!')
+            .setDescription(`${message.author} earned the **${achievementData.name}** achievement!\n${achievementData.emoji} Sent ${achievementData.count} messages`)
+            .setTimestamp();
+          
+          await message.channel.send({ embeds: [achievementEmbed] });
         }
       }
     } catch (error) {

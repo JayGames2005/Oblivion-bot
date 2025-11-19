@@ -107,11 +107,21 @@ if (USE_POSTGRES) {
 
     CREATE TABLE IF NOT EXISTS achievement_settings (
       guild_id TEXT PRIMARY KEY,
+      msg_100_role TEXT,
       msg_500_role TEXT,
       msg_1000_role TEXT,
-      msg_2000_role TEXT,
+      msg_5000_role TEXT,
+      msg_10000_role TEXT,
+      vc_30_role TEXT,
       vc_60_role TEXT,
-      vc_2000_role TEXT
+      vc_500_role TEXT,
+      vc_1000_role TEXT,
+      vc_5000_role TEXT,
+      react_50_role TEXT,
+      react_250_role TEXT,
+      react_1000_role TEXT,
+      popular_100_role TEXT,
+      popular_500_role TEXT
     );
 
     CREATE TABLE IF NOT EXISTS user_achievements (
@@ -120,6 +130,8 @@ if (USE_POSTGRES) {
       messages INTEGER DEFAULT 0,
       voice_minutes INTEGER DEFAULT 0,
       voice_joined_at INTEGER,
+      reactions_given INTEGER DEFAULT 0,
+      reactions_received INTEGER DEFAULT 0,
       achievements TEXT DEFAULT '',
       PRIMARY KEY (guild_id, user_id)
     );
@@ -235,14 +247,24 @@ if (USE_POSTGRES) {
     // Achievement Settings
     getAchievementSettings: db.prepare('SELECT * FROM achievement_settings WHERE guild_id = ?'),
     setAchievementSettings: db.prepare(`
-      INSERT INTO achievement_settings (guild_id, msg_500_role, msg_1000_role, msg_2000_role, vc_60_role, vc_2000_role)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO achievement_settings (guild_id, msg_100_role, msg_500_role, msg_1000_role, msg_5000_role, msg_10000_role, vc_30_role, vc_60_role, vc_500_role, vc_1000_role, vc_5000_role, react_50_role, react_250_role, react_1000_role, popular_100_role, popular_500_role)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(guild_id) DO UPDATE SET
+        msg_100_role = excluded.msg_100_role,
         msg_500_role = excluded.msg_500_role,
         msg_1000_role = excluded.msg_1000_role,
-        msg_2000_role = excluded.msg_2000_role,
+        msg_5000_role = excluded.msg_5000_role,
+        msg_10000_role = excluded.msg_10000_role,
+        vc_30_role = excluded.vc_30_role,
         vc_60_role = excluded.vc_60_role,
-        vc_2000_role = excluded.vc_2000_role
+        vc_500_role = excluded.vc_500_role,
+        vc_1000_role = excluded.vc_1000_role,
+        vc_5000_role = excluded.vc_5000_role,
+        react_50_role = excluded.react_50_role,
+        react_250_role = excluded.react_250_role,
+        react_1000_role = excluded.react_1000_role,
+        popular_100_role = excluded.popular_100_role,
+        popular_500_role = excluded.popular_500_role
     `),
     
     // User Achievements
@@ -265,6 +287,18 @@ if (USE_POSTGRES) {
       ON CONFLICT(guild_id, user_id) DO UPDATE SET
         voice_minutes = voice_minutes + excluded.voice_minutes,
         voice_joined_at = NULL
+    `),
+    incrementReactionsGiven: db.prepare(`
+      INSERT INTO user_achievements (guild_id, user_id, reactions_given)
+      VALUES (?, ?, 1)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        reactions_given = reactions_given + 1
+    `),
+    incrementReactionsReceived: db.prepare(`
+      INSERT INTO user_achievements (guild_id, user_id, reactions_received)
+      VALUES (?, ?, 1)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        reactions_received = reactions_received + 1
     `),
     
     db: db

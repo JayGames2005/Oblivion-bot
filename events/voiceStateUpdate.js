@@ -35,30 +35,75 @@ module.exports = {
               let achievementUnlocked = null;
 
               // Check voice milestones (highest tier wins, remove lower tiers)
-              if (totalMinutes >= 2000 && achievementSettings.vc_2000_role) {
-                roleToAdd = achievementSettings.vc_2000_role;
+              if (totalMinutes >= 5000 && achievementSettings.vc_5000_role) {
+                roleToAdd = achievementSettings.vc_5000_role;
+                if (achievementSettings.vc_30_role) rolesToRemove.push(achievementSettings.vc_30_role);
+                if (achievementSettings.vc_60_role) rolesToRemove.push(achievementSettings.vc_60_role);
+                if (achievementSettings.vc_500_role) rolesToRemove.push(achievementSettings.vc_500_role);
+                if (achievementSettings.vc_1000_role) rolesToRemove.push(achievementSettings.vc_1000_role);
+                
+                if (!member.roles.cache.has(roleToAdd)) {
+                  achievementUnlocked = {
+                    name: 'Voice Legend',
+                    emoji: '🎵',
+                    description: 'Spent 5,000 minutes in voice (83 hours)',
+                    color: 0x00FFFF
+                  };
+                  await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_5000');
+                }
+              } else if (totalMinutes >= 1000 && achievementSettings.vc_1000_role) {
+                roleToAdd = achievementSettings.vc_1000_role;
+                if (achievementSettings.vc_30_role) rolesToRemove.push(achievementSettings.vc_30_role);
+                if (achievementSettings.vc_60_role) rolesToRemove.push(achievementSettings.vc_60_role);
+                if (achievementSettings.vc_500_role) rolesToRemove.push(achievementSettings.vc_500_role);
+                
+                if (!member.roles.cache.has(roleToAdd)) {
+                  achievementUnlocked = {
+                    name: 'Voice Expert',
+                    emoji: '📢',
+                    description: 'Spent 1,000 minutes in voice (16 hours)',
+                    color: 0xFFD700
+                  };
+                  await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_1000');
+                }
+              } else if (totalMinutes >= 500 && achievementSettings.vc_500_role) {
+                roleToAdd = achievementSettings.vc_500_role;
+                if (achievementSettings.vc_30_role) rolesToRemove.push(achievementSettings.vc_30_role);
                 if (achievementSettings.vc_60_role) rolesToRemove.push(achievementSettings.vc_60_role);
                 
                 if (!member.roles.cache.has(roleToAdd)) {
                   achievementUnlocked = {
-                    name: 'Voice Regular II',
-                    emoji: '🎤',
-                    description: 'Spent 2,000 minutes in voice',
-                    color: 0xFFD700
+                    name: 'Voice Enthusiast',
+                    emoji: '🔊',
+                    description: 'Spent 500 minutes in voice (8 hours)',
+                    color: 0xC0C0C0
                   };
-                  await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_2000');
+                  await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_500');
                 }
               } else if (totalMinutes >= 60 && achievementSettings.vc_60_role) {
                 roleToAdd = achievementSettings.vc_60_role;
+                if (achievementSettings.vc_30_role) rolesToRemove.push(achievementSettings.vc_30_role);
                 
                 if (!member.roles.cache.has(roleToAdd)) {
                   achievementUnlocked = {
-                    name: 'Voice Regular I',
-                    emoji: '🎙️',
-                    description: 'Spent 60 minutes in voice',
+                    name: 'Voice Regular',
+                    emoji: '🎤',
+                    description: 'Spent 60 minutes in voice (1 hour)',
                     color: 0xCD7F32
                   };
                   await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_60');
+                }
+              } else if (totalMinutes >= 30 && achievementSettings.vc_30_role) {
+                roleToAdd = achievementSettings.vc_30_role;
+                
+                if (!member.roles.cache.has(roleToAdd)) {
+                  achievementUnlocked = {
+                    name: 'Voice Newbie',
+                    emoji: '🎙️',
+                    description: 'Spent 30 minutes in voice',
+                    color: 0x95a5a6
+                  };
+                  await DatabaseHelper.addUserAchievement(guildId, userId, 'vc_30');
                 }
               }
 

@@ -87,11 +87,21 @@ class PostgresDatabase {
 
         CREATE TABLE IF NOT EXISTS achievement_settings (
           guild_id TEXT PRIMARY KEY,
+          msg_100_role TEXT,
           msg_500_role TEXT,
           msg_1000_role TEXT,
-          msg_2000_role TEXT,
+          msg_5000_role TEXT,
+          msg_10000_role TEXT,
+          vc_30_role TEXT,
           vc_60_role TEXT,
-          vc_2000_role TEXT
+          vc_500_role TEXT,
+          vc_1000_role TEXT,
+          vc_5000_role TEXT,
+          react_50_role TEXT,
+          react_250_role TEXT,
+          react_1000_role TEXT,
+          popular_100_role TEXT,
+          popular_500_role TEXT
         );
 
         CREATE TABLE IF NOT EXISTS user_achievements (
@@ -100,6 +110,8 @@ class PostgresDatabase {
           messages INTEGER DEFAULT 0,
           voice_minutes INTEGER DEFAULT 0,
           voice_joined_at BIGINT,
+          reactions_given INTEGER DEFAULT 0,
+          reactions_received INTEGER DEFAULT 0,
           achievements TEXT DEFAULT '',
           PRIMARY KEY (guild_id, user_id)
         );
@@ -322,17 +334,27 @@ class PostgresDatabase {
     return result.rows[0];
   }
 
-  async setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000) {
+  async setAchievementSettings(guildId, msg100, msg500, msg1000, msg5000, msg10000, vc30, vc60, vc500, vc1000, vc5000, react50, react250, react1000, popular100, popular500) {
     await this.pool.query(`
-      INSERT INTO achievement_settings (guild_id, msg_500_role, msg_1000_role, msg_2000_role, vc_60_role, vc_2000_role)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO achievement_settings (guild_id, msg_100_role, msg_500_role, msg_1000_role, msg_5000_role, msg_10000_role, vc_30_role, vc_60_role, vc_500_role, vc_1000_role, vc_5000_role, react_50_role, react_250_role, react_1000_role, popular_100_role, popular_500_role)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       ON CONFLICT (guild_id) DO UPDATE SET
+        msg_100_role = EXCLUDED.msg_100_role,
         msg_500_role = EXCLUDED.msg_500_role,
         msg_1000_role = EXCLUDED.msg_1000_role,
-        msg_2000_role = EXCLUDED.msg_2000_role,
+        msg_5000_role = EXCLUDED.msg_5000_role,
+        msg_10000_role = EXCLUDED.msg_10000_role,
+        vc_30_role = EXCLUDED.vc_30_role,
         vc_60_role = EXCLUDED.vc_60_role,
-        vc_2000_role = EXCLUDED.vc_2000_role
-    `, [guildId, msg500, msg1000, msg2000, vc60, vc2000]);
+        vc_500_role = EXCLUDED.vc_500_role,
+        vc_1000_role = EXCLUDED.vc_1000_role,
+        vc_5000_role = EXCLUDED.vc_5000_role,
+        react_50_role = EXCLUDED.react_50_role,
+        react_250_role = EXCLUDED.react_250_role,
+        react_1000_role = EXCLUDED.react_1000_role,
+        popular_100_role = EXCLUDED.popular_100_role,
+        popular_500_role = EXCLUDED.popular_500_role
+    `, [guildId, msg100, msg500, msg1000, msg5000, msg10000, vc30, vc60, vc500, vc1000, vc5000, react50, react250, react1000, popular100, popular500]);
   }
 
   // User Achievements
@@ -367,6 +389,24 @@ class PostgresDatabase {
         voice_minutes = user_achievements.voice_minutes + $3,
         voice_joined_at = NULL
     `, [guildId, userId, minutes]);
+  }
+
+  async incrementReactionsGiven(guildId, userId) {
+    await this.pool.query(`
+      INSERT INTO user_achievements (guild_id, user_id, reactions_given)
+      VALUES ($1, $2, 1)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        reactions_given = user_achievements.reactions_given + 1
+    `, [guildId, userId]);
+  }
+
+  async incrementReactionsReceived(guildId, userId) {
+    await this.pool.query(`
+      INSERT INTO user_achievements (guild_id, user_id, reactions_received)
+      VALUES ($1, $2, 1)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        reactions_received = user_achievements.reactions_received + 1
+    `, [guildId, userId]);
   }
 
   async addUserAchievement(guildId, userId, achievement) {

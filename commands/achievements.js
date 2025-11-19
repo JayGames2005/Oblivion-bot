@@ -20,18 +20,36 @@ module.exports = {
       const userData = await DatabaseHelper.getUserAchievements(interaction.guild.id, targetUser.id);
       const messages = userData ? userData.messages : 0;
       const voiceMinutes = userData ? userData.voice_minutes : 0;
+      const reactionsGiven = userData ? userData.reactions_given : 0;
+      const reactionsReceived = userData ? userData.reactions_received : 0;
       const achievements = userData && userData.achievements ? userData.achievements.split(',').filter(a => a) : [];
 
       // Calculate progress
       const messageProgress = [
-        { name: '📨 Chatterbox I', target: 500, emoji: '🥉', achieved: messages >= 500 },
-        { name: '📬 Chatterbox II', target: 1000, emoji: '🥈', achieved: messages >= 1000 },
-        { name: '📮 Chatterbox III', target: 2000, emoji: '🥇', achieved: messages >= 2000 }
+        { name: '💬 Newbie Chatter', target: 100, emoji: '⬜', achieved: messages >= 100 },
+        { name: '📨 Active Chatter', target: 500, emoji: '🥉', achieved: messages >= 500 },
+        { name: '📬 Dedicated Chatter', target: 1000, emoji: '🥈', achieved: messages >= 1000 },
+        { name: '📮 Elite Chatter', target: 5000, emoji: '🥇', achieved: messages >= 5000 },
+        { name: '💎 Legendary Chatter', target: 10000, emoji: '💎', achieved: messages >= 10000 }
       ];
 
       const voiceProgress = [
-        { name: '🎙️ Voice Regular I', target: 60, emoji: '🥉', achieved: voiceMinutes >= 60 },
-        { name: '🎤 Voice Regular II', target: 2000, emoji: '🥇', achieved: voiceMinutes >= 2000 }
+        { name: '🎙️ Voice Newbie', target: 30, emoji: '⬜', achieved: voiceMinutes >= 30 },
+        { name: '🎤 Voice Regular', target: 60, emoji: '🥉', achieved: voiceMinutes >= 60 },
+        { name: '🔊 Voice Enthusiast', target: 500, emoji: '🥈', achieved: voiceMinutes >= 500 },
+        { name: '📢 Voice Expert', target: 1000, emoji: '🥇', achieved: voiceMinutes >= 1000 },
+        { name: '🎵 Voice Legend', target: 5000, emoji: '💎', achieved: voiceMinutes >= 5000 }
+      ];
+
+      const reactionProgress = [
+        { name: '👍 Reactor', target: 50, emoji: '🥉', achieved: reactionsGiven >= 50 },
+        { name: '⭐ Super Reactor', target: 250, emoji: '🥈', achieved: reactionsGiven >= 250 },
+        { name: '🌟 Mega Reactor', target: 1000, emoji: '🥇', achieved: reactionsGiven >= 1000 }
+      ];
+
+      const popularityProgress = [
+        { name: '✨ Rising Star', target: 100, emoji: '🥈', achieved: reactionsReceived >= 100 },
+        { name: '🌠 Superstar', target: 500, emoji: '🥇', achieved: reactionsReceived >= 500 }
       ];
 
       // Create progress bars
@@ -64,13 +82,29 @@ module.exports = {
       });
       embed.addFields({ name: '🎤 Voice Achievements', value: voiceText || 'No data', inline: false });
 
+      // Reaction achievements
+      let reactionText = '';
+      reactionProgress.forEach(ach => {
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsGiven, ach.target);
+        reactionText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${reactionsGiven.toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
+      });
+      embed.addFields({ name: '👍 Reaction Achievements', value: reactionText || 'No data', inline: false });
+
+      // Popularity achievements
+      let popularityText = '';
+      popularityProgress.forEach(ach => {
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsReceived, ach.target);
+        popularityText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${reactionsReceived.toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
+      });
+      embed.addFields({ name: '✨ Popularity Achievements', value: popularityText || 'No data', inline: false });
+
       // Statistics
-      const totalAchievements = messageProgress.filter(a => a.achieved).length + voiceProgress.filter(a => a.achieved).length;
-      const maxAchievements = messageProgress.length + voiceProgress.length;
+      const totalAchievements = messageProgress.filter(a => a.achieved).length + voiceProgress.filter(a => a.achieved).length + reactionProgress.filter(a => a.achieved).length + popularityProgress.filter(a => a.achieved).length;
+      const maxAchievements = messageProgress.length + voiceProgress.length + reactionProgress.length + popularityProgress.length;
       
       embed.addFields({
         name: '📊 Statistics',
-        value: `**Total Achievements:** ${totalAchievements}/${maxAchievements}\n**Messages Sent:** ${messages.toLocaleString()}\n**Voice Time:** ${voiceMinutes.toLocaleString()} minutes (${(voiceMinutes / 60).toFixed(1)} hours)`,
+        value: `**Total Achievements:** ${totalAchievements}/${maxAchievements}\n**Messages:** ${messages.toLocaleString()}\n**Voice Time:** ${voiceMinutes.toLocaleString()} min (${(voiceMinutes / 60).toFixed(1)} hrs)\n**Reactions Given:** ${reactionsGiven.toLocaleString()}\n**Reactions Received:** ${reactionsReceived.toLocaleString()}`,
         inline: false
       });
 
