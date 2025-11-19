@@ -248,7 +248,8 @@ module.exports = function(client) {
       res.json({ success: true });
     } catch (error) {
       console.error('Error updating settings:', error);
-      res.status(500).json({ error: 'Failed to update settings' });
+      console.error('Stack trace:', error.stack);
+      res.status(500).json({ error: 'Failed to update settings', details: error.message });
     }
   });
 

@@ -126,6 +126,35 @@ class PostgresDatabase {
         CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
       `);
 
+      // Auto-migrate achievement_settings table to add missing columns
+      console.log('🔄 Checking achievement_settings schema...');
+      const columnsToAdd = [
+        'msg_100_role',
+        'msg_5000_role',
+        'msg_10000_role',
+        'vc_30_role',
+        'vc_500_role',
+        'vc_1000_role',
+        'vc_5000_role',
+        'react_50_role',
+        'react_250_role',
+        'react_1000_role',
+        'popular_100_role',
+        'popular_500_role'
+      ];
+
+      for (const column of columnsToAdd) {
+        try {
+          await client.query(`
+            ALTER TABLE achievement_settings 
+            ADD COLUMN IF NOT EXISTS ${column} TEXT
+          `);
+        } catch (err) {
+          // Column might already exist, ignore error
+        }
+      }
+      console.log('✅ Achievement settings schema updated');
+
       this.initialized = true;
       console.log('✅ PostgreSQL database initialized');
     } finally {

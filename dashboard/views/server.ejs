@@ -831,12 +831,16 @@
                     successMsg.style.display = 'block';
                     setTimeout(() => successMsg.style.display = 'none', 3000);
                 } else {
-                    throw new Error('Failed to save');
+                    const errorData = await response.json();
+                    console.error('Server error:', errorData);
+                    throw new Error(errorData.error || 'Failed to save');
                 }
             } catch (error) {
+                console.error('Error saving settings:', error);
                 const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = `❌ Error: ${error.message}`;
                 errorMsg.style.display = 'block';
-                setTimeout(() => errorMsg.style.display = 'none', 3000);
+                setTimeout(() => errorMsg.style.display = 'none', 5000);
             }
         });
     </script>

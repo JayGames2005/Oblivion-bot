@@ -32,7 +32,7 @@ module.exports = {
       const settings = await DatabaseHelper.getAchievementSettings(interaction.guild.id);
       if (!settings) {
         return interaction.editReply({
-          content: '❌ No achievement settings found. Run `/achsetup` first!'
+          content: '❌ No achievement settings found. Achievement roles need to be configured in the dashboard or via `/achsetup`.'
         });
       }
 
