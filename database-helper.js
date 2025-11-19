@@ -363,6 +363,32 @@ class DatabaseHelper {
       }
     }
   }
+
+  static async setUserAchievementStats(guildId, userId, messages, voiceMinutes, reactionsGiven, reactionsReceived, achievements) {
+    if (isPostgres) {
+      await db.pool.query(`
+        INSERT INTO user_achievements (guild_id, user_id, messages, voice_minutes, reactions_given, reactions_received, achievements)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (guild_id, user_id) DO UPDATE SET
+          messages = EXCLUDED.messages,
+          voice_minutes = EXCLUDED.voice_minutes,
+          reactions_given = EXCLUDED.reactions_given,
+          reactions_received = EXCLUDED.reactions_received,
+          achievements = EXCLUDED.achievements
+      `, [guildId, userId, messages, voiceMinutes, reactionsGiven, reactionsReceived, achievements]);
+    } else {
+      statements.db.prepare(`
+        INSERT INTO user_achievements (guild_id, user_id, messages, voice_minutes, reactions_given, reactions_received, achievements)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(guild_id, user_id) DO UPDATE SET
+          messages = excluded.messages,
+          voice_minutes = excluded.voice_minutes,
+          reactions_given = excluded.reactions_given,
+          reactions_received = excluded.reactions_received,
+          achievements = excluded.achievements
+      `).run(guildId, userId, messages, voiceMinutes, reactionsGiven, reactionsReceived, achievements);
+    }
+  }
 }
 
 module.exports = DatabaseHelper;

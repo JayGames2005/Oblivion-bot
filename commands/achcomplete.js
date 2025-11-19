@@ -34,49 +34,16 @@ module.exports = {
       const maxReactionsGiven = 1000;
       const maxReactionsReceived = 500;
 
-      // Update database with max values
-      if (interaction.client.db && interaction.client.db.isPostgres) {
-        // PostgreSQL
-        await interaction.client.db.pool.query(`
-          INSERT INTO user_achievements (guild_id, user_id, messages, voice_minutes, reactions_given, reactions_received, achievements)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          ON CONFLICT (guild_id, user_id) DO UPDATE SET
-            messages = EXCLUDED.messages,
-            voice_minutes = EXCLUDED.voice_minutes,
-            reactions_given = EXCLUDED.reactions_given,
-            reactions_received = EXCLUDED.reactions_received,
-            achievements = EXCLUDED.achievements
-        `, [
-          interaction.guild.id,
-          targetUser.id,
-          maxMessages,
-          maxVoiceMinutes,
-          maxReactionsGiven,
-          maxReactionsReceived,
-          'msg_100,msg_500,msg_1000,msg_5000,msg_10000,vc_30,vc_60,vc_500,vc_1000,vc_5000,react_50,react_250,react_1000,popular_100,popular_500'
-        ]);
-      } else {
-        // SQLite
-        const { statements } = require('../database');
-        statements.db.prepare(`
-          INSERT INTO user_achievements (guild_id, user_id, messages, voice_minutes, reactions_given, reactions_received, achievements)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(guild_id, user_id) DO UPDATE SET
-            messages = excluded.messages,
-            voice_minutes = excluded.voice_minutes,
-            reactions_given = excluded.reactions_given,
-            reactions_received = excluded.reactions_received,
-            achievements = excluded.achievements
-        `).run(
-          interaction.guild.id,
-          targetUser.id,
-          maxMessages,
-          maxVoiceMinutes,
-          maxReactionsGiven,
-          maxReactionsReceived,
-          'msg_100,msg_500,msg_1000,msg_5000,msg_10000,vc_30,vc_60,vc_500,vc_1000,vc_5000,react_50,react_250,react_1000,popular_100,popular_500'
-        );
-      }
+      // Update database with max values using DatabaseHelper
+      await DatabaseHelper.setUserAchievementStats(
+        interaction.guild.id,
+        targetUser.id,
+        maxMessages,
+        maxVoiceMinutes,
+        maxReactionsGiven,
+        maxReactionsReceived,
+        'msg_100,msg_500,msg_1000,msg_5000,msg_10000,vc_30,vc_60,vc_500,vc_1000,vc_5000,react_50,react_250,react_1000,popular_100,popular_500'
+      );
 
       // Grant all achievement roles (highest tier only for each category)
       // Get achievement settings to check which roles are configured

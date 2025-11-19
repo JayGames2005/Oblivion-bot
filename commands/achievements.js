@@ -11,9 +11,10 @@ module.exports = {
         .setRequired(false)),
 
   async execute(interaction) {
-    await interaction.deferReply();
-
     try {
+      // Defer immediately to avoid timeout
+      await interaction.deferReply();
+      
       const targetUser = interaction.options.getUser('user') || interaction.user;
       
       // Get user's achievement data
