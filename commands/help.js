@@ -61,10 +61,17 @@ module.exports = {
         '📋 Information': [
           '`/userinfo` - Get information about a user',
           '`/warnings` - View warnings for a user',
-          '`/cases` - View moderation cases'
+          '`/cases` - View moderation cases',
+          '`/avatar` - Display user avatar in high resolution'
+        ],
+        '🎮 Engagement': [
+          '`/rank` - View your XP rank and level',
+          '`/leaderboard` - View XP leaderboards (weekly/all-time)',
+          '`/poll` - Create an interactive poll'
         ],
         '⚙️ Configuration': [
-          '`/settings` - Configure bot settings'
+          '`/settings` - Configure bot settings',
+          '`/welcome` - Configure welcome messages'
         ],
         '❓ Help': [
           '`/help` - View this help menu'

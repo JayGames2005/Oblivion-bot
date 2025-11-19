@@ -190,6 +190,80 @@ class DatabaseHelper {
       return statements.getExpiredMutes.all(timestamp);
     }
   }
+
+  // XP System
+  static async addUserXP(guildId, userId, xpToAdd) {
+    const now = Date.now();
+    const weekStart = now - (now % (7 * 24 * 60 * 60 * 1000));
+
+    if (isPostgres) {
+      return await db.addUserXP(guildId, userId, xpToAdd);
+    } else {
+      const result = statements.addUserXP.run(guildId, userId, xpToAdd, now, xpToAdd, weekStart);
+      const userData = statements.getUserXP.get(guildId, userId);
+      return userData;
+    }
+  }
+
+  static async getUserXP(guildId, userId) {
+    if (isPostgres) {
+      return await db.getUserXP(guildId, userId);
+    } else {
+      return statements.getUserXP.get(guildId, userId);
+    }
+  }
+
+  static async getUserRank(guildId, userId) {
+    if (isPostgres) {
+      return await db.getUserRank(guildId, userId);
+    } else {
+      const result = statements.getUserRank.get(guildId, guildId, userId);
+      return result ? result.rank : 0;
+    }
+  }
+
+  static async getAllTimeLeaderboard(guildId, limit = 100) {
+    if (isPostgres) {
+      return await db.getAllTimeLeaderboard(guildId, limit);
+    } else {
+      return statements.getAllTimeLeaderboard.all(guildId, limit);
+    }
+  }
+
+  static async getWeeklyLeaderboard(guildId, limit = 100) {
+    const weekStart = Date.now() - (Date.now() % (7 * 24 * 60 * 60 * 1000));
+    
+    if (isPostgres) {
+      return await db.getWeeklyLeaderboard(guildId, limit);
+    } else {
+      return statements.getWeeklyLeaderboard.all(guildId, weekStart, limit);
+    }
+  }
+
+  // Welcome Settings
+  static async getWelcomeSettings(guildId) {
+    if (isPostgres) {
+      return await db.getWelcomeSettings(guildId);
+    } else {
+      return statements.getWelcomeSettings.get(guildId);
+    }
+  }
+
+  static async setWelcomeSettings(guildId, channelId, message) {
+    if (isPostgres) {
+      await db.setWelcomeSettings(guildId, channelId, message);
+    } else {
+      statements.setWelcomeSettings.run(guildId, channelId, message);
+    }
+  }
+
+  static async disableWelcome(guildId) {
+    if (isPostgres) {
+      await db.disableWelcome(guildId);
+    } else {
+      statements.disableWelcome.run(guildId);
+    }
+  }
 }
 
 module.exports = DatabaseHelper;

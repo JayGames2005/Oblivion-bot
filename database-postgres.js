@@ -67,10 +67,31 @@ class PostgresDatabase {
           PRIMARY KEY (guild_id, user_id)
         );
 
+        CREATE TABLE IF NOT EXISTS user_xp (
+          guild_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          xp BIGINT DEFAULT 0,
+          messages INTEGER DEFAULT 0,
+          last_message_at BIGINT DEFAULT 0,
+          weekly_xp BIGINT DEFAULT 0,
+          week_start BIGINT DEFAULT 0,
+          PRIMARY KEY (guild_id, user_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS welcome_settings (
+          guild_id TEXT PRIMARY KEY,
+          welcome_enabled BOOLEAN DEFAULT FALSE,
+          welcome_channel TEXT,
+          welcome_message TEXT
+        );
+
         CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
         CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
         CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
         CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);
+        CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);
+        CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
+        CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
       `);
 
       this.initialized = true;
@@ -199,6 +220,80 @@ class PostgresDatabase {
   async getExpiredMutes(timestamp) {
     const result = await this.pool.query('SELECT * FROM mutes WHERE expires_at IS NOT NULL AND expires_at <= $1', [timestamp]);
     return result.rows;
+  }
+
+  // XP System
+  async addUserXP(guildId, userId, xpToAdd) {
+    const now = Date.now();
+    const weekStart = now - (now % (7 * 24 * 60 * 60 * 1000)); // Start of current week
+
+    const result = await this.pool.query(`
+      INSERT INTO user_xp (guild_id, user_id, xp, messages, last_message_at, weekly_xp, week_start)
+      VALUES ($1, $2, $3, 1, $4, $3, $5)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        xp = user_xp.xp + $3,
+        messages = user_xp.messages + 1,
+        last_message_at = $4,
+        weekly_xp = CASE 
+          WHEN user_xp.week_start < $5 THEN $3
+          ELSE user_xp.weekly_xp + $3
+        END,
+        week_start = CASE
+          WHEN user_xp.week_start < $5 THEN $5
+          ELSE user_xp.week_start
+        END
+      RETURNING xp
+    `, [guildId, userId, xpToAdd, now, weekStart]);
+
+    return result.rows[0];
+  }
+
+  async getUserXP(guildId, userId) {
+    const result = await this.pool.query('SELECT * FROM user_xp WHERE guild_id = $1 AND user_id = $2', [guildId, userId]);
+    return result.rows[0];
+  }
+
+  async getUserRank(guildId, userId) {
+    const result = await this.pool.query(
+      'SELECT COUNT(*) + 1 as rank FROM user_xp WHERE guild_id = $1 AND xp > (SELECT COALESCE(xp, 0) FROM user_xp WHERE guild_id = $1 AND user_id = $2)',
+      [guildId, userId]
+    );
+    return parseInt(result.rows[0].rank);
+  }
+
+  async getAllTimeLeaderboard(guildId, limit = 100) {
+    const result = await this.pool.query('SELECT user_id, xp, messages FROM user_xp WHERE guild_id = $1 ORDER BY xp DESC LIMIT $2', [guildId, limit]);
+    return result.rows;
+  }
+
+  async getWeeklyLeaderboard(guildId, limit = 100) {
+    const weekStart = Date.now() - (Date.now() % (7 * 24 * 60 * 60 * 1000));
+    const result = await this.pool.query(
+      'SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = $1 AND week_start >= $2 ORDER BY weekly_xp DESC LIMIT $3',
+      [guildId, weekStart, limit]
+    );
+    return result.rows;
+  }
+
+  // Welcome Settings
+  async getWelcomeSettings(guildId) {
+    const result = await this.pool.query('SELECT * FROM welcome_settings WHERE guild_id = $1', [guildId]);
+    return result.rows[0];
+  }
+
+  async setWelcomeSettings(guildId, channelId, message) {
+    await this.pool.query(`
+      INSERT INTO welcome_settings (guild_id, welcome_enabled, welcome_channel, welcome_message)
+      VALUES ($1, TRUE, $2, $3)
+      ON CONFLICT (guild_id) DO UPDATE SET
+        welcome_enabled = TRUE,
+        welcome_channel = EXCLUDED.welcome_channel,
+        welcome_message = EXCLUDED.welcome_message
+    `, [guildId, channelId, message]);
+  }
+
+  async disableWelcome(guildId) {
+    await this.pool.query('UPDATE welcome_settings SET welcome_enabled = FALSE WHERE guild_id = $1', [guildId]);
   }
 
   async close() {

@@ -2,6 +2,9 @@ const { Events, EmbedBuilder } = require('discord.js');
 const AutoMod = require('../utils/automod');
 const DatabaseHelper = require('../database-helper');
 
+// XP Cooldown tracking (in-memory)
+const xpCooldowns = new Map();
+
 module.exports = {
   name: Events.MessageCreate,
   async execute(message) {
@@ -10,6 +13,41 @@ module.exports = {
 
     // Check automod
     await AutoMod.checkMessage(message);
+
+    // XP System - award XP for messages (with cooldown)
+    try {
+      const cooldownKey = `${message.guild.id}-${message.author.id}`;
+      const lastMessageTime = xpCooldowns.get(cooldownKey);
+      const now = Date.now();
+
+      // 60 second cooldown between XP gains
+      if (!lastMessageTime || now - lastMessageTime >= 60000) {
+        xpCooldowns.set(cooldownKey, now);
+
+        // Random XP between 15-25
+        const xpGain = Math.floor(Math.random() * 11) + 15;
+        
+        const userData = await DatabaseHelper.addUserXP(message.guild.id, message.author.id, xpGain);
+        
+        // Calculate old and new level
+        const oldLevel = Math.floor(0.1 * Math.sqrt(userData.xp - xpGain));
+        const newLevel = Math.floor(0.1 * Math.sqrt(userData.xp));
+
+        // Level up announcement
+        if (newLevel > oldLevel) {
+          const levelUpEmbed = new EmbedBuilder()
+            .setColor(0xFFD700)
+            .setTitle('🎉 Level Up!')
+            .setDescription(`${message.author} reached **Level ${newLevel}**!`)
+            .addFields({ name: 'Total XP', value: `${userData.xp.toLocaleString()}`, inline: true })
+            .setTimestamp();
+
+          await message.channel.send({ embeds: [levelUpEmbed] });
+        }
+      }
+    } catch (error) {
+      console.error('Error awarding XP:', error);
+    }
 
     // Log message to Oblivion logs
     try {

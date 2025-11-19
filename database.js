@@ -87,10 +87,31 @@ if (USE_POSTGRES) {
       PRIMARY KEY (guild_id, user_id)
     );
 
+    CREATE TABLE IF NOT EXISTS user_xp (
+      guild_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      xp INTEGER DEFAULT 0,
+      messages INTEGER DEFAULT 0,
+      last_message_at INTEGER DEFAULT 0,
+      weekly_xp INTEGER DEFAULT 0,
+      week_start INTEGER DEFAULT 0,
+      PRIMARY KEY (guild_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS welcome_settings (
+      guild_id TEXT PRIMARY KEY,
+      welcome_enabled INTEGER DEFAULT 0,
+      welcome_channel TEXT,
+      welcome_message TEXT
+    );
+
     CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
     CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
     CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
     CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);
+    CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
+    CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
   `);
 
   // Add new columns if they don't exist (migration)
@@ -156,6 +177,40 @@ if (USE_POSTGRES) {
     getMute: db.prepare('SELECT * FROM mutes WHERE guild_id = ? AND user_id = ?'),
     removeMute: db.prepare('DELETE FROM mutes WHERE guild_id = ? AND user_id = ?'),
     getExpiredMutes: db.prepare('SELECT * FROM mutes WHERE expires_at IS NOT NULL AND expires_at <= ?'),
+    
+    // XP System
+    addUserXP: db.prepare(`
+      INSERT INTO user_xp (guild_id, user_id, xp, messages, last_message_at, weekly_xp, week_start)
+      VALUES (?, ?, ?, 1, ?, ?, ?)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        xp = xp + excluded.xp,
+        messages = messages + 1,
+        last_message_at = excluded.last_message_at,
+        weekly_xp = CASE 
+          WHEN week_start < excluded.week_start THEN excluded.weekly_xp
+          ELSE weekly_xp + excluded.weekly_xp
+        END,
+        week_start = CASE
+          WHEN week_start < excluded.week_start THEN excluded.week_start
+          ELSE week_start
+        END
+    `),
+    getUserXP: db.prepare('SELECT * FROM user_xp WHERE guild_id = ? AND user_id = ?'),
+    getUserRank: db.prepare('SELECT COUNT(*) + 1 as rank FROM user_xp WHERE guild_id = ? AND xp > (SELECT COALESCE(xp, 0) FROM user_xp WHERE guild_id = ? AND user_id = ?)'),
+    getAllTimeLeaderboard: db.prepare('SELECT user_id, xp, messages FROM user_xp WHERE guild_id = ? ORDER BY xp DESC LIMIT ?'),
+    getWeeklyLeaderboard: db.prepare('SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = ? AND week_start >= ? ORDER BY weekly_xp DESC LIMIT ?'),
+    
+    // Welcome Settings
+    getWelcomeSettings: db.prepare('SELECT * FROM welcome_settings WHERE guild_id = ?'),
+    setWelcomeSettings: db.prepare(`
+      INSERT INTO welcome_settings (guild_id, welcome_enabled, welcome_channel, welcome_message)
+      VALUES (?, 1, ?, ?)
+      ON CONFLICT(guild_id) DO UPDATE SET
+        welcome_enabled = 1,
+        welcome_channel = excluded.welcome_channel,
+        welcome_message = excluded.welcome_message
+    `),
+    disableWelcome: db.prepare('UPDATE welcome_settings SET welcome_enabled = 0 WHERE guild_id = ?'),
     
     db: db
   };
