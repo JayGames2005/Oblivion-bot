@@ -193,6 +193,28 @@ class PostgresDatabase {
           // Column might already exist, ignore error
         }
       }
+
+      // Update existing rows to set default values for newly added columns
+      try {
+        await client.query(`
+          UPDATE user_achievements 
+          SET 
+            messages = COALESCE(messages, 0),
+            voice_minutes = COALESCE(voice_minutes, 0),
+            reactions_given = COALESCE(reactions_given, 0),
+            reactions_received = COALESCE(reactions_received, 0),
+            achievements = COALESCE(achievements, '')
+          WHERE 
+            messages IS NULL 
+            OR voice_minutes IS NULL 
+            OR reactions_given IS NULL 
+            OR reactions_received IS NULL 
+            OR achievements IS NULL
+        `);
+      } catch (err) {
+        console.error('Failed to update default values:', err);
+      }
+
       console.log('✅ User achievements schema updated');
 
       this.initialized = true;
