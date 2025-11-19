@@ -118,6 +118,13 @@ class PostgresDatabase {
           PRIMARY KEY (guild_id, user_id)
         );
 
+        CREATE TABLE IF NOT EXISTS user_achievement_roles (
+          guild_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          role_id TEXT NOT NULL,
+          PRIMARY KEY (guild_id, user_id, role_id)
+        );
+
         CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
         CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
         CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -126,6 +133,7 @@ class PostgresDatabase {
         CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
         CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
         CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
+        CREATE INDEX IF NOT EXISTS idx_user_achievement_roles_user ON user_achievement_roles(guild_id, user_id);
       `);
 
       // Auto-migrate achievement_settings table to add missing columns
@@ -521,6 +529,30 @@ class PostgresDatabase {
           achievements = EXCLUDED.achievements
       `, [guildId, userId, currentAchievements.join(',')]);
     }
+  }
+
+  // Achievement Role Persistence
+  async addAchievementRole(guildId, userId, roleId) {
+    await this.pool.query(`
+      INSERT INTO user_achievement_roles (guild_id, user_id, role_id)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id, user_id, role_id) DO NOTHING
+    `, [guildId, userId, roleId]);
+  }
+
+  async removeAchievementRole(guildId, userId, roleId) {
+    await this.pool.query(`
+      DELETE FROM user_achievement_roles
+      WHERE guild_id = $1 AND user_id = $2 AND role_id = $3
+    `, [guildId, userId, roleId]);
+  }
+
+  async getUserAchievementRoles(guildId, userId) {
+    const result = await this.pool.query(
+      'SELECT role_id FROM user_achievement_roles WHERE guild_id = $1 AND user_id = $2',
+      [guildId, userId]
+    );
+    return result.rows.map(row => row.role_id);
   }
 
   async close() {

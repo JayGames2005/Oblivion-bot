@@ -117,8 +117,16 @@ module.exports = {
         if (achievementData && roleToAdd) {
           await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, achievementData.key);
           await member.roles.add(roleToAdd);
+          
+          // Save role to database for persistence
+          await DatabaseHelper.addAchievementRole(message.guild.id, message.author.id, roleToAdd);
+          
           for (const roleId of rolesToRemove) {
-            if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
+            if (member.roles.cache.has(roleId)) {
+              await member.roles.remove(roleId);
+              // Remove from database as well
+              await DatabaseHelper.removeAchievementRole(message.guild.id, message.author.id, roleId);
+            }
           }
           
           // Check if achievement announcements are enabled

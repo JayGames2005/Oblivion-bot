@@ -85,8 +85,15 @@ async function checkReactionAchievements(guild, member, userData, achievementSet
   if (achievementUnlocked && roleToAdd) {
     await member.roles.add(roleToAdd);
     
+    // Save role to database for persistence
+    await DatabaseHelper.addAchievementRole(guild.id, member.id, roleToAdd);
+    
     for (const roleId of rolesToRemove) {
-      if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
+      if (member.roles.cache.has(roleId)) {
+        await member.roles.remove(roleId);
+        // Remove from database as well
+        await DatabaseHelper.removeAchievementRole(guild.id, member.id, roleId);
+      }
     }
 
     await DatabaseHelper.addUserAchievement(guild.id, member.id, achievementUnlocked.key);

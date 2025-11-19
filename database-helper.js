@@ -387,6 +387,32 @@ class DatabaseHelper {
       `).run(guildId, userId, messages, voiceMinutes, reactionsGiven, reactionsReceived, achievements);
     }
   }
+
+  // Achievement Role Persistence
+  static async addAchievementRole(guildId, userId, roleId) {
+    if (isPostgres) {
+      await db.addAchievementRole(guildId, userId, roleId);
+    } else {
+      statements.addAchievementRole.run(guildId, userId, roleId);
+    }
+  }
+
+  static async removeAchievementRole(guildId, userId, roleId) {
+    if (isPostgres) {
+      await db.removeAchievementRole(guildId, userId, roleId);
+    } else {
+      statements.removeAchievementRole.run(guildId, userId, roleId);
+    }
+  }
+
+  static async getUserAchievementRoles(guildId, userId) {
+    if (isPostgres) {
+      return await db.getUserAchievementRoles(guildId, userId);
+    } else {
+      const rows = statements.getUserAchievementRoles.all(guildId, userId);
+      return rows.map(row => row.role_id);
+    }
+  }
 }
 
 module.exports = DatabaseHelper;

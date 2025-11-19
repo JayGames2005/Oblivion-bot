@@ -84,6 +84,8 @@ module.exports = {
       for (const roleId of rolesToRemove) {
         if (member.roles.cache.has(roleId)) {
           await member.roles.remove(roleId);
+          // Remove from database
+          await DatabaseHelper.removeAchievementRole(interaction.guild.id, targetUser.id, roleId);
         }
       }
 
@@ -92,6 +94,8 @@ module.exports = {
       for (const roleId of rolesToAdd) {
         if (!member.roles.cache.has(roleId)) {
           await member.roles.add(roleId);
+          // Save to database for persistence
+          await DatabaseHelper.addAchievementRole(interaction.guild.id, targetUser.id, roleId);
           addedRoles++;
         }
       }

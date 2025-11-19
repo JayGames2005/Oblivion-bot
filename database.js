@@ -138,6 +138,13 @@ if (USE_POSTGRES) {
       PRIMARY KEY (guild_id, user_id)
     );
 
+    CREATE TABLE IF NOT EXISTS user_achievement_roles (
+      guild_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      role_id TEXT NOT NULL,
+      PRIMARY KEY (guild_id, user_id, role_id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
     CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
     CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -146,6 +153,7 @@ if (USE_POSTGRES) {
     CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
     CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
     CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
+    CREATE INDEX IF NOT EXISTS idx_user_achievement_roles_user ON user_achievement_roles(guild_id, user_id);
   `);
 
   // Add new columns if they don't exist (migration)
@@ -303,6 +311,21 @@ if (USE_POSTGRES) {
       VALUES (?, ?, 1)
       ON CONFLICT(guild_id, user_id) DO UPDATE SET
         reactions_received = reactions_received + 1
+    `),
+
+    // Achievement Role Persistence
+    addAchievementRole: db.prepare(`
+      INSERT INTO user_achievement_roles (guild_id, user_id, role_id)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id, user_id, role_id) DO NOTHING
+    `),
+    removeAchievementRole: db.prepare(`
+      DELETE FROM user_achievement_roles
+      WHERE guild_id = ? AND user_id = ? AND role_id = ?
+    `),
+    getUserAchievementRoles: db.prepare(`
+      SELECT role_id FROM user_achievement_roles
+      WHERE guild_id = ? AND user_id = ?
     `),
     
     db: db

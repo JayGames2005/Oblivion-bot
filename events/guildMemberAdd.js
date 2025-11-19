@@ -5,6 +5,21 @@ module.exports = {
   name: Events.GuildMemberAdd,
   async execute(member) {
     try {
+      // Restore achievement roles
+      try {
+        const achievementRoles = await DatabaseHelper.getUserAchievementRoles(member.guild.id, member.id);
+        if (achievementRoles && achievementRoles.length > 0) {
+          for (const roleId of achievementRoles) {
+            const role = member.guild.roles.cache.get(roleId);
+            if (role && !member.roles.cache.has(roleId)) {
+              await member.roles.add(role);
+            }
+          }
+        }
+      } catch (roleError) {
+        console.error('Error restoring achievement roles:', roleError);
+      }
+
       // Get guild settings
       const settings = await DatabaseHelper.getGuildSettings(member.guild.id);
 

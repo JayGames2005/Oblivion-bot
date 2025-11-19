@@ -116,6 +116,8 @@ module.exports = {
             const role = await interaction.guild.roles.fetch(roleId);
             if (role && !member.roles.cache.has(roleId)) {
               await member.roles.add(role);
+              // Save to database for persistence
+              await DatabaseHelper.addAchievementRole(interaction.guild.id, targetUser.id, roleId);
               rolesToGrant.push(role.name);
             }
           } catch (err) {
