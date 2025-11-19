@@ -49,6 +49,82 @@ module.exports = {
       console.error('Error awarding XP:', error);
     }
 
+    // Achievement System - track messages and grant roles
+    try {
+      // Increment message count
+      await DatabaseHelper.incrementUserMessages(message.guild.id, message.author.id);
+      
+      // Get achievement settings and user data
+      const achievementSettings = await DatabaseHelper.getAchievementSettings(message.guild.id);
+      if (achievementSettings) {
+        const userData = await DatabaseHelper.getUserAchievements(message.guild.id, message.author.id);
+        const messages = userData ? userData.messages : 0;
+        
+        const member = message.member;
+        const rolesToRemove = [];
+        let roleToAdd = null;
+
+        // Check message milestones (highest tier wins, remove lower tiers)
+        if (messages >= 2000 && achievementSettings.msg_2000_role) {
+          roleToAdd = achievementSettings.msg_2000_role;
+          if (achievementSettings.msg_500_role) rolesToRemove.push(achievementSettings.msg_500_role);
+          if (achievementSettings.msg_1000_role) rolesToRemove.push(achievementSettings.msg_1000_role);
+          
+          if (!member.roles.cache.has(roleToAdd)) {
+            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_2000');
+            await member.roles.add(roleToAdd);
+            for (const roleId of rolesToRemove) {
+              if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
+            }
+            
+            const achievementEmbed = new EmbedBuilder()
+              .setColor(0xFFD700)
+              .setTitle('🏆 Achievement Unlocked!')
+              .setDescription(`${message.author} earned the **Chatterbox III** achievement!\n📮 Sent 2,000 messages`)
+              .setTimestamp();
+            
+            await message.channel.send({ embeds: [achievementEmbed] });
+          }
+        } else if (messages >= 1000 && achievementSettings.msg_1000_role) {
+          roleToAdd = achievementSettings.msg_1000_role;
+          if (achievementSettings.msg_500_role) rolesToRemove.push(achievementSettings.msg_500_role);
+          
+          if (!member.roles.cache.has(roleToAdd)) {
+            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_1000');
+            await member.roles.add(roleToAdd);
+            for (const roleId of rolesToRemove) {
+              if (member.roles.cache.has(roleId)) await member.roles.remove(roleId);
+            }
+            
+            const achievementEmbed = new EmbedBuilder()
+              .setColor(0xC0C0C0)
+              .setTitle('🏆 Achievement Unlocked!')
+              .setDescription(`${message.author} earned the **Chatterbox II** achievement!\n📬 Sent 1,000 messages`)
+              .setTimestamp();
+            
+            await message.channel.send({ embeds: [achievementEmbed] });
+          }
+        } else if (messages >= 500 && achievementSettings.msg_500_role) {
+          roleToAdd = achievementSettings.msg_500_role;
+          
+          if (!member.roles.cache.has(roleToAdd)) {
+            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, 'msg_500');
+            await member.roles.add(roleToAdd);
+            
+            const achievementEmbed = new EmbedBuilder()
+              .setColor(0xCD7F32)
+              .setTitle('🏆 Achievement Unlocked!')
+              .setDescription(`${message.author} earned the **Chatterbox I** achievement!\n📨 Sent 500 messages`)
+              .setTimestamp();
+            
+            await message.channel.send({ embeds: [achievementEmbed] });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error tracking achievements:', error);
+    }
+
     // Log message to Oblivion logs
     try {
       const settings = await DatabaseHelper.getGuildSettings(message.guild.id);

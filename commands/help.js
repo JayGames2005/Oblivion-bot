@@ -67,7 +67,8 @@ module.exports = {
         '🎮 Engagement': [
           '`/rank` - View your XP rank and level',
           '`/leaderboard` - View XP leaderboards (weekly/all-time)',
-          '`/poll` - Create an interactive poll'
+          '`/poll` - Create an interactive poll',
+          '`/achievements` - View your achievement progress'
         ],
         '⚙️ Configuration': [
           '`/settings` - Configure bot settings',

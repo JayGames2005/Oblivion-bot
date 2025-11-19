@@ -509,6 +509,91 @@
                     </div>
                 </div>
 
+                <h3 style="margin: 2rem 0 1rem 0; color: #667eea; display: flex; align-items: center; gap: 0.5rem;">
+                    🏆 Achievement Role Rewards
+                </h3>
+
+                <div style="display: grid; gap: 1rem;">
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">📨 500 Messages</label>
+                        <p style="color: #888; font-size: 0.85rem; margin-bottom: 0.75rem;">Role awarded when user sends 500 messages</p>
+                        <select id="msg500Role" name="msg500Role" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="">No Role</option>
+                            <% roles.forEach(role => { %>
+                                <% if (role.id !== guild.id) { %>
+                                    <option value="<%= role.id %>" <%= achievementSettings && achievementSettings.msg_500_role === role.id ? 'selected' : '' %>>
+                                        <%= role.name %>
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">📬 1,000 Messages</label>
+                        <p style="color: #888; font-size: 0.85rem; margin-bottom: 0.75rem;">Role awarded when user sends 1,000 messages (replaces 500 role)</p>
+                        <select id="msg1000Role" name="msg1000Role" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="">No Role</option>
+                            <% roles.forEach(role => { %>
+                                <% if (role.id !== guild.id) { %>
+                                    <option value="<%= role.id %>" <%= achievementSettings && achievementSettings.msg_1000_role === role.id ? 'selected' : '' %>>
+                                        <%= role.name %>
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">📮 2,000 Messages</label>
+                        <p style="color: #888; font-size: 0.85rem; margin-bottom: 0.75rem;">Role awarded when user sends 2,000 messages (replaces 1,000 role)</p>
+                        <select id="msg2000Role" name="msg2000Role" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="">No Role</option>
+                            <% roles.forEach(role => { %>
+                                <% if (role.id !== guild.id) { %>
+                                    <option value="<%= role.id %>" <%= achievementSettings && achievementSettings.msg_2000_role === role.id ? 'selected' : '' %>>
+                                        <%= role.name %>
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">🎙️ 60 Minutes in Voice</label>
+                        <p style="color: #888; font-size: 0.85rem; margin-bottom: 0.75rem;">Role awarded when user spends 60 minutes in voice channels</p>
+                        <select id="vc60Role" name="vc60Role" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="">No Role</option>
+                            <% roles.forEach(role => { %>
+                                <% if (role.id !== guild.id) { %>
+                                    <option value="<%= role.id %>" <%= achievementSettings && achievementSettings.vc_60_role === role.id ? 'selected' : '' %>>
+                                        <%= role.name %>
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">🎤 2,000 Minutes in Voice</label>
+                        <p style="color: #888; font-size: 0.85rem; margin-bottom: 0.75rem;">Role awarded when user spends 2,000 minutes in voice channels (replaces 60 min role)</p>
+                        <select id="vc2000Role" name="vc2000Role" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="">No Role</option>
+                            <% roles.forEach(role => { %>
+                                <% if (role.id !== guild.id) { %>
+                                    <option value="<%= role.id %>" <%= achievementSettings && achievementSettings.vc_2000_role === role.id ? 'selected' : '' %>>
+                                        <%= role.name %>
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 6px; border-left: 4px solid #667eea;">
+                        <p style="color: #888; font-size: 0.85rem; margin: 0;">💡 <strong>Note:</strong> When a user earns a higher tier achievement, the previous tier's role will be automatically removed.</p>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn">💾 Save Settings</button>
             </form>
         </div>
@@ -548,7 +633,12 @@
                 antiSpamAction: document.getElementById('antiSpamAction').value,
                 antiInviteAction: document.getElementById('antiInviteAction').value,
                 antiLinkAction: document.getElementById('antiLinkAction').value,
-                bannedWordsAction: document.getElementById('bannedWordsAction').value
+                bannedWordsAction: document.getElementById('bannedWordsAction').value,
+                msg500Role: document.getElementById('msg500Role').value,
+                msg1000Role: document.getElementById('msg1000Role').value,
+                msg2000Role: document.getElementById('msg2000Role').value,
+                vc60Role: document.getElementById('vc60Role').value,
+                vc2000Role: document.getElementById('vc2000Role').value
             };
 
             try {

@@ -145,13 +145,17 @@ module.exports = function(client) {
         warns: cases.filter(c => c.action.toLowerCase() === 'warn').length
       };
 
+      // Get achievement settings
+      const achievementSettings = await DatabaseHelper.getAchievementSettings(guildId);
+
       res.render('server', { 
         guild, 
         settings, 
         recentCases, 
         caseStats,
         channels: guild.channels.cache.filter(c => c.type === 0),
-        roles: guild.roles.cache
+        roles: guild.roles.cache,
+        achievementSettings
       });
     } catch (error) {
       console.error('Error loading server dashboard:', error);
@@ -174,7 +178,7 @@ module.exports = function(client) {
     }
 
     try {
-      const { modLogChannel, oblivionLogChannel, antiSpam, antiInvite, antiLink, antiSpamAction, antiInviteAction, antiLinkAction, bannedWordsAction } = req.body;
+      const { modLogChannel, oblivionLogChannel, antiSpam, antiInvite, antiLink, antiSpamAction, antiInviteAction, antiLinkAction, bannedWordsAction, msg500Role, msg1000Role, msg2000Role, vc60Role, vc2000Role } = req.body;
 
       if (modLogChannel) {
         await DatabaseHelper.updateModLogChannel(guildId, modLogChannel);
@@ -191,6 +195,16 @@ module.exports = function(client) {
       if (typeof antiLink !== 'undefined') {
         await DatabaseHelper.updateAutomodAntiLink(guildId, antiLink ? 1 : 0);
       }
+
+      // Save achievement role settings
+      await DatabaseHelper.setAchievementSettings(
+        guildId,
+        msg500Role || null,
+        msg1000Role || null,
+        msg2000Role || null,
+        vc60Role || null,
+        vc2000Role || null
+      );
 
       res.json({ success: true });
     } catch (error) {

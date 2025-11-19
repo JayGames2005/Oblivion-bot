@@ -264,6 +264,71 @@ class DatabaseHelper {
       statements.disableWelcome.run(guildId);
     }
   }
+
+  // Achievement Settings
+  static async getAchievementSettings(guildId) {
+    if (isPostgres) {
+      return await db.getAchievementSettings(guildId);
+    } else {
+      return statements.getAchievementSettings.get(guildId);
+    }
+  }
+
+  static async setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000) {
+    if (isPostgres) {
+      await db.setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000);
+    } else {
+      statements.setAchievementSettings.run(guildId, msg500, msg1000, msg2000, vc60, vc2000);
+    }
+  }
+
+  // User Achievements
+  static async getUserAchievements(guildId, userId) {
+    if (isPostgres) {
+      return await db.getUserAchievements(guildId, userId);
+    } else {
+      return statements.getUserAchievements.get(guildId, userId);
+    }
+  }
+
+  static async incrementUserMessages(guildId, userId) {
+    if (isPostgres) {
+      await db.incrementUserMessages(guildId, userId);
+    } else {
+      statements.incrementUserMessages.run(guildId, userId);
+    }
+  }
+
+  static async setUserVoiceJoined(guildId, userId, timestamp) {
+    if (isPostgres) {
+      await db.setUserVoiceJoined(guildId, userId, timestamp);
+    } else {
+      statements.setUserVoiceJoined.run(guildId, userId, timestamp);
+    }
+  }
+
+  static async addUserVoiceTime(guildId, userId, minutes) {
+    if (isPostgres) {
+      await db.addUserVoiceTime(guildId, userId, minutes);
+    } else {
+      statements.addUserVoiceTime.run(guildId, userId, minutes);
+    }
+  }
+
+  static async addUserAchievement(guildId, userId, achievement) {
+    if (isPostgres) {
+      await db.addUserAchievement(guildId, userId, achievement);
+    } else {
+      const userData = statements.getUserAchievements.get(guildId, userId);
+      const currentAchievements = userData && userData.achievements ? userData.achievements.split(',').filter(a => a) : [];
+      
+      if (!currentAchievements.includes(achievement)) {
+        currentAchievements.push(achievement);
+        statements.db.prepare('UPDATE user_achievements SET achievements = ? WHERE guild_id = ? AND user_id = ?')
+          .run(currentAchievements.join(','), guildId, userId);
+      }
+    }
+  }
 }
 
 module.exports = DatabaseHelper;

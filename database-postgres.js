@@ -85,6 +85,25 @@ class PostgresDatabase {
           welcome_message TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS achievement_settings (
+          guild_id TEXT PRIMARY KEY,
+          msg_500_role TEXT,
+          msg_1000_role TEXT,
+          msg_2000_role TEXT,
+          vc_60_role TEXT,
+          vc_2000_role TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS user_achievements (
+          guild_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          messages INTEGER DEFAULT 0,
+          voice_minutes INTEGER DEFAULT 0,
+          voice_joined_at BIGINT,
+          achievements TEXT DEFAULT '',
+          PRIMARY KEY (guild_id, user_id)
+        );
+
         CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
         CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
         CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -92,6 +111,7 @@ class PostgresDatabase {
         CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);
         CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
         CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
+        CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
       `);
 
       this.initialized = true;
@@ -294,6 +314,73 @@ class PostgresDatabase {
 
   async disableWelcome(guildId) {
     await this.pool.query('UPDATE welcome_settings SET welcome_enabled = FALSE WHERE guild_id = $1', [guildId]);
+  }
+
+  // Achievement Settings
+  async getAchievementSettings(guildId) {
+    const result = await this.pool.query('SELECT * FROM achievement_settings WHERE guild_id = $1', [guildId]);
+    return result.rows[0];
+  }
+
+  async setAchievementSettings(guildId, msg500, msg1000, msg2000, vc60, vc2000) {
+    await this.pool.query(`
+      INSERT INTO achievement_settings (guild_id, msg_500_role, msg_1000_role, msg_2000_role, vc_60_role, vc_2000_role)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (guild_id) DO UPDATE SET
+        msg_500_role = EXCLUDED.msg_500_role,
+        msg_1000_role = EXCLUDED.msg_1000_role,
+        msg_2000_role = EXCLUDED.msg_2000_role,
+        vc_60_role = EXCLUDED.vc_60_role,
+        vc_2000_role = EXCLUDED.vc_2000_role
+    `, [guildId, msg500, msg1000, msg2000, vc60, vc2000]);
+  }
+
+  // User Achievements
+  async getUserAchievements(guildId, userId) {
+    const result = await this.pool.query('SELECT * FROM user_achievements WHERE guild_id = $1 AND user_id = $2', [guildId, userId]);
+    return result.rows[0];
+  }
+
+  async incrementUserMessages(guildId, userId) {
+    await this.pool.query(`
+      INSERT INTO user_achievements (guild_id, user_id, messages)
+      VALUES ($1, $2, 1)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        messages = user_achievements.messages + 1
+    `, [guildId, userId]);
+  }
+
+  async setUserVoiceJoined(guildId, userId, timestamp) {
+    await this.pool.query(`
+      INSERT INTO user_achievements (guild_id, user_id, voice_joined_at)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        voice_joined_at = EXCLUDED.voice_joined_at
+    `, [guildId, userId, timestamp]);
+  }
+
+  async addUserVoiceTime(guildId, userId, minutes) {
+    await this.pool.query(`
+      INSERT INTO user_achievements (guild_id, user_id, voice_minutes, voice_joined_at)
+      VALUES ($1, $2, $3, NULL)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET
+        voice_minutes = user_achievements.voice_minutes + $3,
+        voice_joined_at = NULL
+    `, [guildId, userId, minutes]);
+  }
+
+  async addUserAchievement(guildId, userId, achievement) {
+    const userData = await this.getUserAchievements(guildId, userId);
+    const currentAchievements = userData && userData.achievements ? userData.achievements.split(',').filter(a => a) : [];
+    
+    if (!currentAchievements.includes(achievement)) {
+      currentAchievements.push(achievement);
+      await this.pool.query(`
+        UPDATE user_achievements 
+        SET achievements = $3
+        WHERE guild_id = $1 AND user_id = $2
+      `, [guildId, userId, currentAchievements.join(',')]);
+    }
   }
 
   async close() {

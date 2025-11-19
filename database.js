@@ -105,6 +105,25 @@ if (USE_POSTGRES) {
       welcome_message TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS achievement_settings (
+      guild_id TEXT PRIMARY KEY,
+      msg_500_role TEXT,
+      msg_1000_role TEXT,
+      msg_2000_role TEXT,
+      vc_60_role TEXT,
+      vc_2000_role TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS user_achievements (
+      guild_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      messages INTEGER DEFAULT 0,
+      voice_minutes INTEGER DEFAULT 0,
+      voice_joined_at INTEGER,
+      achievements TEXT DEFAULT '',
+      PRIMARY KEY (guild_id, user_id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
     CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
     CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -112,6 +131,7 @@ if (USE_POSTGRES) {
     CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);
     CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
     CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
+    CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
   `);
 
   // Add new columns if they don't exist (migration)
@@ -211,6 +231,41 @@ if (USE_POSTGRES) {
         welcome_message = excluded.welcome_message
     `),
     disableWelcome: db.prepare('UPDATE welcome_settings SET welcome_enabled = 0 WHERE guild_id = ?'),
+    
+    // Achievement Settings
+    getAchievementSettings: db.prepare('SELECT * FROM achievement_settings WHERE guild_id = ?'),
+    setAchievementSettings: db.prepare(`
+      INSERT INTO achievement_settings (guild_id, msg_500_role, msg_1000_role, msg_2000_role, vc_60_role, vc_2000_role)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(guild_id) DO UPDATE SET
+        msg_500_role = excluded.msg_500_role,
+        msg_1000_role = excluded.msg_1000_role,
+        msg_2000_role = excluded.msg_2000_role,
+        vc_60_role = excluded.vc_60_role,
+        vc_2000_role = excluded.vc_2000_role
+    `),
+    
+    // User Achievements
+    getUserAchievements: db.prepare('SELECT * FROM user_achievements WHERE guild_id = ? AND user_id = ?'),
+    incrementUserMessages: db.prepare(`
+      INSERT INTO user_achievements (guild_id, user_id, messages)
+      VALUES (?, ?, 1)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        messages = messages + 1
+    `),
+    setUserVoiceJoined: db.prepare(`
+      INSERT INTO user_achievements (guild_id, user_id, voice_joined_at)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        voice_joined_at = excluded.voice_joined_at
+    `),
+    addUserVoiceTime: db.prepare(`
+      INSERT INTO user_achievements (guild_id, user_id, voice_minutes, voice_joined_at)
+      VALUES (?, ?, ?, NULL)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET
+        voice_minutes = voice_minutes + excluded.voice_minutes,
+        voice_joined_at = NULL
+    `),
     
     db: db
   };
