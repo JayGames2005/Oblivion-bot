@@ -55,7 +55,12 @@ module.exports = {
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === 'start') {
-      await interaction.reply({ content: '🎉 Creating giveaway...' });
+      try {
+        await interaction.deferReply();
+      } catch (err) {
+        console.error('Failed to defer giveaway start:', err);
+        return;
+      }
 
       const prize = interaction.options.getString('prize');
       const duration = interaction.options.getInteger('duration');
@@ -129,7 +134,12 @@ module.exports = {
       interaction.client.giveaways.set(message.id, giveawayData);
 
     } else if (subcommand === 'end') {
-      await interaction.reply({ content: '⏱️ Ending giveaway...' });
+      try {
+        await interaction.deferReply();
+      } catch (err) {
+        console.error('Failed to defer giveaway end:', err);
+        return;
+      }
 
       const messageId = interaction.options.getString('message_id');
       const giveaway = interaction.client.giveaways?.get(messageId);
@@ -146,7 +156,12 @@ module.exports = {
       });
 
     } else if (subcommand === 'reroll') {
-      await interaction.reply({ content: '🎲 Rerolling winner...' });
+      try {
+        await interaction.deferReply();
+      } catch (err) {
+        console.error('Failed to defer giveaway reroll:', err);
+        return;
+      }
 
       const messageId = interaction.options.getString('message_id');
       
