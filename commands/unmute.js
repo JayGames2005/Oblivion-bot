@@ -19,7 +19,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply();
     
     const target = interaction.options.getUser('user');
     const reason = interaction.options.getString('reason') || 'No reason provided';

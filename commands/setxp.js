@@ -27,8 +27,6 @@ module.exports = {
       });
     }
 
-    await interaction.deferReply({ ephemeral: true });
-
     try {
       const targetUser = interaction.options.getUser('user');
       const xpAmount = interaction.options.getInteger('amount');

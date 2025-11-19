@@ -14,7 +14,6 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
-    await interaction.deferReply();
     
     const caseId = interaction.options.getInteger('case_id');
 

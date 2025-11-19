@@ -30,7 +30,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply();
 
     const subcommand = interaction.options.getSubcommand();
 

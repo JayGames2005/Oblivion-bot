@@ -23,7 +23,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply();
     
     const user = interaction.options.getUser('user');
     const amount = interaction.options.getInteger('amount') ?? 1;

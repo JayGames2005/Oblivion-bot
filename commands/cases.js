@@ -32,9 +32,6 @@ module.exports = {
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
 
-    // Defer reply immediately to prevent timeout
-    await interaction.deferReply();
-
     try {
       if (subcommand === 'view') {
         const caseNumber = interaction.options.getInteger('case_number');

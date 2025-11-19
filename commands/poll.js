@@ -38,7 +38,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply();
 
     const question = interaction.options.getString('question');
     const duration = interaction.options.getInteger('duration');

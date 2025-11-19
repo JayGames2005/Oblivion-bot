@@ -31,8 +31,6 @@ module.exports = {
     }
 
     try {
-      await interaction.deferReply({ ephemeral: true });
-
       // Fetch messages
       const messages = await interaction.channel.messages.fetch({ limit: amount + 1 });
 

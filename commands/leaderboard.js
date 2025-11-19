@@ -16,8 +16,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply();
-
     const timeframe = interaction.options.getString('timeframe') || 'alltime';
     
     // Get leaderboard data
