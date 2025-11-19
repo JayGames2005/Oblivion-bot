@@ -8,19 +8,37 @@ module.exports = {
 
     // Handle giveaway entries
     if (interaction.customId.startsWith('giveaway_enter_')) {
-      const minLevel = parseInt(interaction.customId.split('_')[2]);
+      const minRole = interaction.customId.split('_')[2];
       
-      // Get user's XP data
-      const userData = await DatabaseHelper.getUserXP(interaction.guild.id, interaction.user.id);
-      const userXP = userData?.xp || 0;
-      const userLevel = Math.floor(0.1 * Math.sqrt(userXP));
+      // Check if user has required role (if any)
+      if (minRole !== 'none') {
+        // Get achievement settings to find the role ID
+        const settings = await DatabaseHelper.getAchievementSettings(interaction.guild.id);
+        const roleId = settings?.[`${minRole}_role`];
+        
+        if (!roleId) {
+          return interaction.reply({
+            content: '❌ This giveaway requires a role that hasn\'t been set up yet!',
+            flags: 64
+          });
+        }
 
-      // Check if user meets minimum level requirement
-      if (userLevel < minLevel) {
-        return interaction.reply({
-          content: `❌ You need to be at least **Level ${minLevel}** to enter this giveaway! You are currently **Level ${userLevel}**.`,
-          flags: 64 // ephemeral
-        });
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+        
+        if (!member.roles.cache.has(roleId)) {
+          const roleNames = {
+            'msg_100': 'Newbie Chatter (100 messages)',
+            'msg_500': 'Active Chatter (500 messages)',
+            'msg_1000': 'Dedicated Chatter (1K messages)',
+            'msg_5000': 'Elite Chatter (5K messages)',
+            'msg_10000': 'Legendary Chatter (10K messages)'
+          };
+          
+          return interaction.reply({
+            content: `❌ You need the **${roleNames[minRole]}** role to enter this giveaway!`,
+            flags: 64
+          });
+        }
       }
 
       // Get giveaway data
@@ -45,7 +63,7 @@ module.exports = {
       giveaway.entries.push(interaction.user.id);
 
       await interaction.reply({
-        content: `✅ You have been entered into the giveaway! Good luck! 🍀\n**Your Level:** ${userLevel}`,
+        content: `✅ You have been entered into the giveaway! Good luck! 🍀`,
         flags: 64
       });
     }
