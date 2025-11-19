@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const DatabaseHelper = require('../database-helper');
 
-const BOT_OWNER_ID = '1439128016532930731';
+const BOT_OWNER_ID = '1432443011488288890';
 
 module.exports = {
   data: new SlashCommandBuilder()
