@@ -55,13 +55,6 @@ module.exports = {
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === 'start') {
-      try {
-        await interaction.deferReply();
-      } catch (err) {
-        console.error('Failed to defer giveaway start:', err);
-        return;
-      }
-
       const prize = interaction.options.getString('prize');
       const duration = interaction.options.getInteger('duration');
       const winners = interaction.options.getInteger('winners');
@@ -101,13 +94,11 @@ module.exports = {
             .setStyle(ButtonStyle.Primary)
         );
 
-      await interaction.editReply({
-        content: null,
+      const message = await interaction.reply({
         embeds: [embed],
-        components: [button]
+        components: [button],
+        fetchReply: true
       });
-
-      const message = await interaction.fetchReply();
 
       // Store giveaway data
       const giveawayData = {
@@ -134,35 +125,23 @@ module.exports = {
       interaction.client.giveaways.set(message.id, giveawayData);
 
     } else if (subcommand === 'end') {
-      try {
-        await interaction.deferReply();
-      } catch (err) {
-        console.error('Failed to defer giveaway end:', err);
-        return;
-      }
-
       const messageId = interaction.options.getString('message_id');
       const giveaway = interaction.client.giveaways?.get(messageId);
 
       if (!giveaway) {
-        return interaction.editReply({
-          content: '❌ Giveaway not found or already ended!'
+        return interaction.reply({
+          content: '❌ Giveaway not found or already ended!',
+          flags: 64
         });
       }
 
       await endGiveaway(interaction.client, giveaway);
-      await interaction.editReply({
-        content: '✅ Giveaway ended!'
+      await interaction.reply({
+        content: '✅ Giveaway ended!',
+        flags: 64
       });
 
     } else if (subcommand === 'reroll') {
-      try {
-        await interaction.deferReply();
-      } catch (err) {
-        console.error('Failed to defer giveaway reroll:', err);
-        return;
-      }
-
       const messageId = interaction.options.getString('message_id');
       
       try {
@@ -171,22 +150,24 @@ module.exports = {
         const giveaway = interaction.client.giveaways?.get(messageId);
 
         if (!giveaway || giveaway.entries.length === 0) {
-          return interaction.editReply({
-            content: '❌ No entries found for this giveaway!'
+          return interaction.reply({
+            content: '❌ No entries found for this giveaway!',
+            flags: 64
           });
         }
 
         const winner = giveaway.entries[Math.floor(Math.random() * giveaway.entries.length)];
         
-        await interaction.editReply({
+        await interaction.reply({
           content: `🎉 New winner: <@${winner}>! Congratulations!`
         });
 
       } catch (error) {
         console.error('Error rerolling giveaway:', error);
-        await interaction.editReply({
-          content: '❌ Failed to reroll giveaway. Make sure the message ID is correct.'
-        });
+        await interaction.reply({
+          content: '❌ Failed to reroll giveaway. Make sure the message ID is correct.',
+          flags: 64
+        }).catch(() => {});
       }
     }
   }
