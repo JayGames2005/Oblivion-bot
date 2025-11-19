@@ -20,18 +20,7 @@ module.exports = {
         .addIntegerOption(option =>
           option.setName('winners')
             .setDescription('Number of winners')
-            .setRequired(true))
-        .addStringOption(option =>
-          option.setName('min_role')
-            .setDescription('Minimum chatter role required (default: none)')
-            .setRequired(false)
-            .addChoices(
-              { name: 'Newbie Chatter (100 messages)', value: 'msg_100' },
-              { name: 'Active Chatter (500 messages)', value: 'msg_500' },
-              { name: 'Dedicated Chatter (1K messages)', value: 'msg_1000' },
-              { name: 'Elite Chatter (5K messages)', value: 'msg_5000' },
-              { name: 'Legendary Chatter (10K messages)', value: 'msg_10000' }
-            )))
+            .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
         .setName('end')
@@ -58,28 +47,16 @@ module.exports = {
       const prize = interaction.options.getString('prize');
       const duration = interaction.options.getInteger('duration');
       const winners = interaction.options.getInteger('winners');
-      const minRole = interaction.options.getString('min_role') || 'none';
 
       const endTime = Date.now() + (duration * 60 * 1000);
       const endTimestamp = Math.floor(endTime / 1000);
-
-      // Get role name for display
-      const roleNames = {
-        'msg_100': 'Newbie Chatter (100 messages)',
-        'msg_500': 'Active Chatter (500 messages)',
-        'msg_1000': 'Dedicated Chatter (1K messages)',
-        'msg_5000': 'Elite Chatter (5K messages)',
-        'msg_10000': 'Legendary Chatter (10K messages)',
-        'none': 'None'
-      };
 
       const embed = new EmbedBuilder()
         .setTitle('🎉 GIVEAWAY 🎉')
         .setDescription(
           `**Prize:** ${prize}\n` +
           `**Winners:** ${winners}\n` +
-          `**Ends:** <t:${endTimestamp}:R> (<t:${endTimestamp}:F>)\n` +
-          `**Minimum Requirement:** ${roleNames[minRole]}\n\n` +
+          `**Ends:** <t:${endTimestamp}:R> (<t:${endTimestamp}:F>)\n\n` +
           `Click the button below to enter!`
         )
         .setColor('#FF69B4')
@@ -89,7 +66,7 @@ module.exports = {
       const button = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId(`giveaway_enter_${minRole}`)
+            .setCustomId('giveaway_enter')
             .setLabel('🎉 Enter Giveaway')
             .setStyle(ButtonStyle.Primary)
         );
@@ -107,7 +84,6 @@ module.exports = {
         guildId: interaction.guild.id,
         prize,
         winners,
-        minRole,
         endTime,
         hostId: interaction.user.id,
         entries: []
