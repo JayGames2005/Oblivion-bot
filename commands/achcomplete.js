@@ -14,15 +14,15 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
+    // Defer immediately to avoid timeout
+    await interaction.deferReply({ flags: 64 });
+
     // Only bot owner can use this command
     if (interaction.user.id !== BOT_OWNER_ID) {
-      return interaction.reply({ 
-        content: '❌ This command is restricted to the bot owner only.', 
-        flags: 64  // MessageFlags.Ephemeral
+      return interaction.editReply({ 
+        content: '❌ This command is restricted to the bot owner only.'
       });
     }
-
-    await interaction.deferReply({ flags: 64 });
 
     try {
       const targetUser = interaction.options.getUser('user');

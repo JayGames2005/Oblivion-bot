@@ -105,9 +105,14 @@ module.exports = {
       
       embed.addFields({
         name: '📊 Statistics',
-        value: `**Total Achievements:** ${totalAchievements}/${maxAchievements}\n**Messages:** ${messages.toLocaleString()}\n**Voice Time:** ${voiceMinutes.toLocaleString()} min (${(voiceMinutes / 60).toFixed(1)} hrs)\n**Reactions Given:** ${reactionsGiven.toLocaleString()}\n**Reactions Received:** ${reactionsReceived.toLocaleString()}`,
+        value: `**Total Achievements:** ${totalAchievements}/${maxAchievements}\n**Messages:** ${(messages || 0).toLocaleString()}\n**Voice Time:** ${(voiceMinutes || 0).toLocaleString()} min (${((voiceMinutes || 0) / 60).toFixed(1)} hrs)\n**Reactions Given:** ${(reactionsGiven || 0).toLocaleString()}\n**Reactions Received:** ${(reactionsReceived || 0).toLocaleString()}`,
         inline: false
       });
+
+      // If user has completed all achievements, add special message
+      if (totalAchievements === maxAchievements) {
+        embed.setFooter({ text: '🎉 All achievements completed! You are a legend!' });
+      }
 
       await interaction.editReply({ embeds: [embed] });
 
