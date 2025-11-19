@@ -33,16 +33,21 @@ module.exports = {
         const oldLevel = Math.floor(0.1 * Math.sqrt(userData.xp - xpGain));
         const newLevel = Math.floor(0.1 * Math.sqrt(userData.xp));
 
-        // Level up announcement
+        // Level up announcement (if enabled in settings)
         if (newLevel > oldLevel) {
-          const levelUpEmbed = new EmbedBuilder()
-            .setColor(0xFFD700)
-            .setTitle('🎉 Level Up!')
-            .setDescription(`${message.author} reached **Level ${newLevel}**!`)
-            .addFields({ name: 'Total XP', value: `${userData.xp.toLocaleString()}`, inline: true })
-            .setTimestamp();
+          const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
+          const levelUpEnabled = !settings || settings.level_up_messages === undefined || settings.level_up_messages === 1;
+          
+          if (levelUpEnabled) {
+            const levelUpEmbed = new EmbedBuilder()
+              .setColor(0xFFD700)
+              .setTitle('🎉 Level Up!')
+              .setDescription(`${message.author} reached **Level ${newLevel}**!`)
+              .addFields({ name: 'Total XP', value: `${userData.xp.toLocaleString()}`, inline: true })
+              .setTimestamp();
 
-          await message.channel.send({ embeds: [levelUpEmbed] });
+            await message.channel.send({ embeds: [levelUpEmbed] });
+          }
         }
       }
     } catch (error) {

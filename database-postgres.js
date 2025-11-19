@@ -33,7 +33,8 @@ class PostgresDatabase {
           automod_anti_spam_action TEXT DEFAULT 'delete',
           automod_anti_invite_action TEXT DEFAULT 'delete',
           automod_anti_link_action TEXT DEFAULT 'delete',
-          automod_banned_words_action TEXT DEFAULT 'delete'
+          automod_banned_words_action TEXT DEFAULT 'delete',
+          level_up_messages INTEGER DEFAULT 1
         );
 
         CREATE TABLE IF NOT EXISTS mod_cases (
@@ -155,6 +156,16 @@ class PostgresDatabase {
       }
       console.log('✅ Achievement settings schema updated');
 
+      // Auto-migrate guild_settings table for level_up_messages column
+      try {
+        await client.query(`
+          ALTER TABLE guild_settings 
+          ADD COLUMN IF NOT EXISTS level_up_messages INTEGER DEFAULT 1
+        `);
+      } catch (err) {
+        // Column might already exist, ignore error
+      }
+
       this.initialized = true;
       console.log('✅ PostgreSQL database initialized');
     } finally {
@@ -201,6 +212,10 @@ class PostgresDatabase {
 
   async updateAutomodAntiLink(enabled, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_anti_link = $1 WHERE guild_id = $2', [enabled, guildId]);
+  }
+
+  async updateLevelUpMessages(enabled, guildId) {
+    await this.pool.query('UPDATE guild_settings SET level_up_messages = $1 WHERE guild_id = $2', [enabled, guildId]);
   }
 
   async updateBannedWords(words, guildId) {
