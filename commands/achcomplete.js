@@ -18,11 +18,11 @@ module.exports = {
     if (interaction.user.id !== BOT_OWNER_ID) {
       return interaction.reply({ 
         content: '❌ This command is restricted to the bot owner only.', 
-        ephemeral: true 
+        flags: 64  // MessageFlags.Ephemeral
       });
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     try {
       const targetUser = interaction.options.getUser('user');

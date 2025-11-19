@@ -69,32 +69,32 @@ module.exports = {
       // Message achievements
       let messageText = '';
       messageProgress.forEach(ach => {
-        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(messages, ach.target);
-        messageText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${messages.toLocaleString()}/${ach.target.toLocaleString()}\n`}\n`;
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(messages || 0, ach.target);
+        messageText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${(messages || 0).toLocaleString()}/${ach.target.toLocaleString()}\n`}\n`;
       });
       embed.addFields({ name: '📨 Message Achievements', value: messageText || 'No data', inline: false });
 
       // Voice achievements
       let voiceText = '';
       voiceProgress.forEach(ach => {
-        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(voiceMinutes, ach.target);
-        voiceText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${voiceMinutes.toLocaleString()}/${ach.target.toLocaleString()} minutes\n`}\n`;
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(voiceMinutes || 0, ach.target);
+        voiceText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${(voiceMinutes || 0).toLocaleString()}/${ach.target.toLocaleString()} minutes\n`}\n`;
       });
       embed.addFields({ name: '🎤 Voice Achievements', value: voiceText || 'No data', inline: false });
 
       // Reaction achievements
       let reactionText = '';
       reactionProgress.forEach(ach => {
-        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsGiven, ach.target);
-        reactionText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${reactionsGiven.toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsGiven || 0, ach.target);
+        reactionText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${(reactionsGiven || 0).toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
       });
       embed.addFields({ name: '👍 Reaction Achievements', value: reactionText || 'No data', inline: false });
 
       // Popularity achievements
       let popularityText = '';
       popularityProgress.forEach(ach => {
-        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsReceived, ach.target);
-        popularityText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${reactionsReceived.toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
+        const status = ach.achieved ? `${ach.emoji} **UNLOCKED**` : createProgressBar(reactionsReceived || 0, ach.target);
+        popularityText += `${ach.name}\n${status}\n${ach.achieved ? '' : `Progress: ${(reactionsReceived || 0).toLocaleString()}/${ach.target.toLocaleString()} reactions\n`}\n`;
       });
       embed.addFields({ name: '✨ Popularity Achievements', value: popularityText || 'No data', inline: false });
 
