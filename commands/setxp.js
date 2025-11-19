@@ -1,10 +1,12 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const DatabaseHelper = require('../database-helper');
 
+const BOT_OWNER_ID = '1439128016532930731';
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('setxp')
-    .setDescription('Set a user\'s XP (Admin only)')
+    .setDescription('Set a user\'s XP (Bot Owner only)')
     .addUserOption(option =>
       option.setName('user')
         .setDescription('The user to set XP for')
@@ -17,7 +19,15 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    await interaction.deferReply();
+    // Only bot owner can use this command
+    if (interaction.user.id !== BOT_OWNER_ID) {
+      return interaction.reply({ 
+        content: '❌ This command is restricted to the bot owner only.', 
+        ephemeral: true 
+      });
+    }
+
+    await interaction.deferReply({ ephemeral: true });
 
     try {
       const targetUser = interaction.options.getUser('user');
