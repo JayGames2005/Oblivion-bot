@@ -11,6 +11,12 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    try {
+      await interaction.deferReply();
+    } catch (err) {
+      console.error('Failed to defer avatar:', err);
+      return;
+    }
 
     const user = interaction.options.getUser('user') || interaction.user;
     const member = await interaction.guild.members.fetch(user.id).catch(() => null);

@@ -73,11 +73,6 @@ async function startBot() {
       return;
     }
 
-    // Defer immediately to prevent timeout (3 second limit)
-    await interaction.deferReply().catch(err => {
-      console.error('Failed to defer interaction:', err);
-    });
-
     // Check cooldowns
     const { cooldowns } = client;
 
@@ -95,8 +90,9 @@ async function startBot() {
 
       if (now < expirationTime) {
         const expiredTimestamp = Math.round(expirationTime / 1000);
-        return interaction.editReply({ 
-          content: `⏱️ Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`
+        return interaction.reply({ 
+          content: `⏱️ Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`,
+          flags: 64
         });
       }
     }
