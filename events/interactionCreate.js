@@ -8,6 +8,12 @@ module.exports = {
 
     // Handle giveaway entries
     if (interaction.customId.startsWith('giveaway_enter_')) {
+      // Reply instantly to avoid timeout
+      await interaction.reply({
+        content: '⏳ Checking eligibility...',
+        flags: 64
+      });
+
       const minRole = interaction.customId.split('_')[2];
       
       // Check if user has required role (if any)
@@ -17,9 +23,8 @@ module.exports = {
         const roleId = settings?.[`${minRole}_role`];
         
         if (!roleId) {
-          return interaction.reply({
-            content: '❌ This giveaway requires a role that hasn\'t been set up yet!',
-            flags: 64
+          return interaction.editReply({
+            content: '❌ This giveaway requires a role that hasn\'t been set up yet!'
           });
         }
 
@@ -34,9 +39,8 @@ module.exports = {
             'msg_10000': 'Legendary Chatter (10K messages)'
           };
           
-          return interaction.reply({
-            content: `❌ You need the **${roleNames[minRole]}** role to enter this giveaway!`,
-            flags: 64
+          return interaction.editReply({
+            content: `❌ You need the **${roleNames[minRole]}** role to enter this giveaway!`
           });
         }
       }
@@ -45,26 +49,23 @@ module.exports = {
       const giveaway = interaction.client.giveaways?.get(interaction.message.id);
       
       if (!giveaway) {
-        return interaction.reply({
-          content: '❌ This giveaway is no longer active!',
-          flags: 64
+        return interaction.editReply({
+          content: '❌ This giveaway is no longer active!'
         });
       }
 
       // Check if already entered
       if (giveaway.entries.includes(interaction.user.id)) {
-        return interaction.reply({
-          content: '❌ You have already entered this giveaway!',
-          flags: 64
+        return interaction.editReply({
+          content: '❌ You have already entered this giveaway!'
         });
       }
 
       // Add entry
       giveaway.entries.push(interaction.user.id);
 
-      await interaction.reply({
-        content: `✅ You have been entered into the giveaway! Good luck! 🍀`,
-        flags: 64
+      await interaction.editReply({
+        content: `✅ You have been entered into the giveaway! Good luck! 🍀`
       });
     }
   }
