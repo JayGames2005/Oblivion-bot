@@ -178,7 +178,36 @@ module.exports = function(client) {
     }
 
     try {
-      const { modLogChannel, oblivionLogChannel, antiSpam, antiInvite, antiLink, antiSpamAction, antiInviteAction, antiLinkAction, bannedWordsAction, msg500Role, msg1000Role, msg2000Role, vc60Role, vc2000Role } = req.body;
+      const { 
+        modLogChannel, 
+        oblivionLogChannel, 
+        antiSpam, 
+        antiInvite, 
+        antiLink, 
+        antiSpamAction, 
+        antiInviteAction, 
+        antiLinkAction, 
+        bannedWordsAction,
+        // Message achievements
+        msg100Role,
+        msg500Role, 
+        msg1000Role, 
+        msg5000Role,
+        msg10000Role,
+        // Voice achievements
+        vc30Role,
+        vc60Role,
+        vc500Role, 
+        vc1000Role,
+        vc5000Role,
+        // Reaction achievements
+        react50Role,
+        react250Role,
+        react1000Role,
+        // Popularity achievements
+        popular100Role,
+        popular500Role
+      } = req.body;
 
       if (modLogChannel) {
         await DatabaseHelper.updateModLogChannel(guildId, modLogChannel);
@@ -196,14 +225,24 @@ module.exports = function(client) {
         await DatabaseHelper.updateAutomodAntiLink(guildId, antiLink ? 1 : 0);
       }
 
-      // Save achievement role settings
+      // Save all 15 achievement role settings
       await DatabaseHelper.setAchievementSettings(
         guildId,
+        msg100Role || null,
         msg500Role || null,
         msg1000Role || null,
-        msg2000Role || null,
+        msg5000Role || null,
+        msg10000Role || null,
+        vc30Role || null,
         vc60Role || null,
-        vc2000Role || null
+        vc500Role || null,
+        vc1000Role || null,
+        vc5000Role || null,
+        react50Role || null,
+        react250Role || null,
+        react1000Role || null,
+        popular100Role || null,
+        popular500Role || null
       );
 
       res.json({ success: true });
