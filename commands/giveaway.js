@@ -52,11 +52,11 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.reply({ content: '🎉 Processing giveaway...' });
-
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === 'start') {
+      await interaction.reply({ content: '🎉 Creating giveaway...' });
+
       const prize = interaction.options.getString('prize');
       const duration = interaction.options.getInteger('duration');
       const winners = interaction.options.getInteger('winners');
@@ -129,6 +129,8 @@ module.exports = {
       interaction.client.giveaways.set(message.id, giveawayData);
 
     } else if (subcommand === 'end') {
+      await interaction.reply({ content: '⏱️ Ending giveaway...' });
+
       const messageId = interaction.options.getString('message_id');
       const giveaway = interaction.client.giveaways?.get(messageId);
 
@@ -144,6 +146,8 @@ module.exports = {
       });
 
     } else if (subcommand === 'reroll') {
+      await interaction.reply({ content: '🎲 Rerolling winner...' });
+
       const messageId = interaction.options.getString('message_id');
       
       try {
