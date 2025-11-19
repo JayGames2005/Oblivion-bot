@@ -14,7 +14,7 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    // Defer immediately to avoid timeout
+    // Defer immediately BEFORE any logic
     await interaction.deferReply({ flags: 64 });
 
     // Only bot owner can use this command

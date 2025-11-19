@@ -11,10 +11,10 @@ module.exports = {
         .setRequired(false)),
 
   async execute(interaction) {
+    // Defer immediately BEFORE try-catch to respond faster
+    await interaction.deferReply();
+    
     try {
-      // Defer immediately to avoid timeout
-      await interaction.deferReply();
-      
       const targetUser = interaction.options.getUser('user') || interaction.user;
       
       // Get user's achievement data
@@ -118,9 +118,17 @@ module.exports = {
 
     } catch (error) {
       console.error('Error fetching achievements:', error);
-      await interaction.editReply({
-        content: '❌ Failed to fetch achievements. Please try again.'
-      });
+      const errorMessage = { content: '❌ Failed to fetch achievements. Please try again.' };
+      
+      try {
+        if (interaction.deferred || interaction.replied) {
+          await interaction.editReply(errorMessage);
+        } else {
+          await interaction.reply(errorMessage);
+        }
+      } catch (replyError) {
+        console.error('Failed to send error message:', replyError);
+      }
     }
   }
 };
