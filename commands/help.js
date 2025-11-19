@@ -71,7 +71,8 @@ module.exports = {
         ],
         '⚙️ Configuration': [
           '`/settings` - Configure bot settings',
-          '`/welcome` - Configure welcome messages'
+          '`/welcome` - Configure welcome messages',
+          '`/setxp` - Set a user\'s XP amount (Admin)'
         ],
         '❓ Help': [
           '`/help` - View this help menu'
