@@ -445,9 +445,10 @@ class PostgresDatabase {
     if (!currentAchievements.includes(achievement)) {
       currentAchievements.push(achievement);
       await this.pool.query(`
-        UPDATE user_achievements 
-        SET achievements = $3
-        WHERE guild_id = $1 AND user_id = $2
+        INSERT INTO user_achievements (guild_id, user_id, achievements)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (guild_id, user_id) DO UPDATE SET
+          achievements = EXCLUDED.achievements
       `, [guildId, userId, currentAchievements.join(',')]);
     }
   }

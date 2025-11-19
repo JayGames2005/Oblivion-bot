@@ -340,8 +340,11 @@ class DatabaseHelper {
       
       if (!currentAchievements.includes(achievement)) {
         currentAchievements.push(achievement);
-        statements.db.prepare('UPDATE user_achievements SET achievements = ? WHERE guild_id = ? AND user_id = ?')
-          .run(currentAchievements.join(','), guildId, userId);
+        statements.db.prepare(`
+          INSERT INTO user_achievements (guild_id, user_id, achievements)
+          VALUES (?, ?, ?)
+          ON CONFLICT(guild_id, user_id) DO UPDATE SET achievements = excluded.achievements
+        `).run(guildId, userId, currentAchievements.join(','));
       }
     }
   }
