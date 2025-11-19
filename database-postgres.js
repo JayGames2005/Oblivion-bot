@@ -171,6 +171,30 @@ class PostgresDatabase {
         // Column might already exist, ignore error
       }
 
+      // Auto-migrate user_achievements table to add missing columns
+      console.log('🔄 Checking user_achievements schema...');
+      const achievementColumns = [
+        'messages INTEGER DEFAULT 0',
+        'voice_minutes INTEGER DEFAULT 0',
+        'voice_joined_at BIGINT',
+        'reactions_given INTEGER DEFAULT 0',
+        'reactions_received INTEGER DEFAULT 0',
+        'achievements TEXT DEFAULT \'\''
+      ];
+
+      for (const columnDef of achievementColumns) {
+        const columnName = columnDef.split(' ')[0];
+        try {
+          await client.query(`
+            ALTER TABLE user_achievements 
+            ADD COLUMN IF NOT EXISTS ${columnDef}
+          `);
+        } catch (err) {
+          // Column might already exist, ignore error
+        }
+      }
+      console.log('✅ User achievements schema updated');
+
       this.initialized = true;
       console.log('✅ PostgreSQL database initialized');
     } finally {
