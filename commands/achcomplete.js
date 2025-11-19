@@ -28,15 +28,7 @@ module.exports = {
       const targetUser = interaction.options.getUser('user');
       const member = await interaction.guild.members.fetch(targetUser.id);
 
-      // Get achievement settings
-      const settings = await DatabaseHelper.getAchievementSettings(interaction.guild.id);
-      if (!settings) {
-        return interaction.editReply({
-          content: '❌ No achievement settings found. Achievement roles need to be configured in the dashboard or via `/achsetup`.'
-        });
-      }
-
-      // Set max values for all achievement types
+      // Set max values for all achievement types (roles are optional)
       const maxMessages = 10000;
       const maxVoiceMinutes = 5000;
       const maxReactionsGiven = 1000;
@@ -87,11 +79,14 @@ module.exports = {
       }
 
       // Grant all achievement roles (highest tier only for each category)
+      // Get achievement settings to check which roles are configured
+      const settings = await DatabaseHelper.getAchievementSettings(interaction.guild.id);
+      
       const rolesToAdd = [];
       const rolesToRemove = [];
 
       // Message roles - keep only highest
-      if (settings.msg_10000_role) {
+      if (settings && settings.msg_10000_role) {
         rolesToAdd.push(settings.msg_10000_role);
         if (settings.msg_100_role) rolesToRemove.push(settings.msg_100_role);
         if (settings.msg_500_role) rolesToRemove.push(settings.msg_500_role);
@@ -100,7 +95,7 @@ module.exports = {
       }
 
       // Voice roles - keep only highest
-      if (settings.vc_5000_role) {
+      if (settings && settings.vc_5000_role) {
         rolesToAdd.push(settings.vc_5000_role);
         if (settings.vc_30_role) rolesToRemove.push(settings.vc_30_role);
         if (settings.vc_60_role) rolesToRemove.push(settings.vc_60_role);
@@ -109,14 +104,14 @@ module.exports = {
       }
 
       // Reaction roles - keep only highest
-      if (settings.react_1000_role) {
+      if (settings && settings.react_1000_role) {
         rolesToAdd.push(settings.react_1000_role);
         if (settings.react_50_role) rolesToRemove.push(settings.react_50_role);
         if (settings.react_250_role) rolesToRemove.push(settings.react_250_role);
       }
 
       // Popularity roles - keep only highest
-      if (settings.popular_500_role) {
+      if (settings && settings.popular_500_role) {
         rolesToAdd.push(settings.popular_500_role);
         if (settings.popular_100_role) rolesToRemove.push(settings.popular_100_role);
       }
