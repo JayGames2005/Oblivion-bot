@@ -14,9 +14,6 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    // Defer immediately BEFORE any logic
-    await interaction.deferReply({ flags: 64 });
-
     // Only bot owner can use this command
     if (interaction.user.id !== BOT_OWNER_ID) {
       return interaction.editReply({ 

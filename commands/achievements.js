@@ -11,9 +11,6 @@ module.exports = {
         .setRequired(false)),
 
   async execute(interaction) {
-    // Defer immediately BEFORE try-catch to respond faster
-    await interaction.deferReply();
-    
     try {
       const targetUser = interaction.options.getUser('user') || interaction.user;
       
