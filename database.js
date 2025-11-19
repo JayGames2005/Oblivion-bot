@@ -234,7 +234,7 @@ if (USE_POSTGRES) {
     getUserXP: db.prepare('SELECT * FROM user_xp WHERE guild_id = ? AND user_id = ?'),
     getUserRank: db.prepare('SELECT COUNT(*) + 1 as rank FROM user_xp WHERE guild_id = ? AND xp > (SELECT COALESCE(xp, 0) FROM user_xp WHERE guild_id = ? AND user_id = ?)'),
     getAllTimeLeaderboard: db.prepare('SELECT user_id, xp, messages FROM user_xp WHERE guild_id = ? ORDER BY xp DESC LIMIT ?'),
-    getWeeklyLeaderboard: db.prepare('SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = ? AND week_start >= ? ORDER BY weekly_xp DESC LIMIT ?'),
+    getWeeklyLeaderboard: db.prepare('SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = ? AND weekly_xp > 0 ORDER BY weekly_xp DESC LIMIT ?'),
     
     // Welcome Settings
     getWelcomeSettings: db.prepare('SELECT * FROM welcome_settings WHERE guild_id = ?'),

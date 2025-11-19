@@ -246,12 +246,10 @@ class DatabaseHelper {
   }
 
   static async getWeeklyLeaderboard(guildId, limit = 100) {
-    const weekStart = Date.now() - (Date.now() % (7 * 24 * 60 * 60 * 1000));
-    
     if (isPostgres) {
       return await db.getWeeklyLeaderboard(guildId, limit);
     } else {
-      return statements.getWeeklyLeaderboard.all(guildId, weekStart, limit);
+      return statements.getWeeklyLeaderboard.all(guildId, limit);
     }
   }
 

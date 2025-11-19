@@ -400,8 +400,8 @@ class PostgresDatabase {
   async getWeeklyLeaderboard(guildId, limit = 100) {
     const weekStart = Date.now() - (Date.now() % (7 * 24 * 60 * 60 * 1000));
     const result = await this.pool.query(
-      'SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = $1 AND week_start >= $2 ORDER BY weekly_xp DESC LIMIT $3',
-      [guildId, weekStart, limit]
+      'SELECT user_id, weekly_xp as xp, messages FROM user_xp WHERE guild_id = $1 AND weekly_xp > 0 ORDER BY weekly_xp DESC LIMIT $2',
+      [guildId, limit]
     );
     return result.rows;
   }
