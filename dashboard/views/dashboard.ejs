@@ -211,6 +211,12 @@
         }
 
         @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
             .nav-brand {
                 gap: 0.5rem;
             }
@@ -228,12 +234,85 @@
                 font-size: 0.5rem;
             }
 
-            .guilds-grid {
-                grid-template-columns: 1fr;
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+                margin: 1rem auto;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+
+            .user-info img {
+                width: 60px;
+                height: 60px;
             }
 
             .user-info h2 {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
+            }
+
+            .user-info p {
+                font-size: 0.9rem;
+            }
+
+            .guilds-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .guild-card {
+                padding: 1.5rem;
+            }
+
+            .guild-card img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .guild-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .guild-card p {
+                font-size: 0.85rem;
+            }
+
+            .no-guilds {
+                padding: 2rem;
+            }
+
+            .no-guilds h2 {
+                font-size: 1.5rem;
+            }
+
+            .no-guilds p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-title {
+                font-size: 1rem;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .user-info h2 {
+                font-size: 1.1rem;
+            }
+
+            .guild-card h3 {
+                font-size: 1rem;
             }
         }
     </style>

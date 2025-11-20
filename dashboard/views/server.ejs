@@ -412,6 +412,193 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            nav h1 {
+                font-size: 1.2rem;
+            }
+
+            nav .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+                margin: 1rem auto;
+            }
+
+            .server-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+
+            .server-header img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .server-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .server-info {
+                justify-content: center;
+            }
+
+            .info-badge {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card h3 {
+                font-size: 1.8rem;
+            }
+
+            .stat-card p {
+                font-size: 0.75rem;
+            }
+
+            .stat-card .icon {
+                font-size: 1.5rem;
+            }
+
+            .tab-navigation {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .tab-button {
+                flex: 1 1 calc(50% - 0.25rem);
+                min-width: calc(50% - 0.25rem);
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .settings-section, .cases-section, .settings-card {
+                padding: 1.25rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .settings-section h2, .cases-section h2 {
+                font-size: 1.2rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group select {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .checkbox-item {
+                padding: 0.6rem 0.8rem;
+            }
+
+            .checkbox-item label {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 0.85rem;
+                font-size: 0.95rem;
+            }
+
+            .case-item {
+                padding: 1rem;
+            }
+
+            .case-item h4 {
+                font-size: 1rem;
+            }
+
+            .case-item p {
+                font-size: 0.85rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .case-item p strong {
+                min-width: unset;
+            }
+
+            .quick-info {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .info-card {
+                padding: 0.75rem;
+            }
+
+            .info-card h4 {
+                font-size: 0.75rem;
+            }
+
+            .info-card p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .server-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-button {
+                flex: 1 1 100%;
+                min-width: 100%;
+            }
+
+            .stat-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .settings-section h2, .cases-section h2 {
+                font-size: 1.1rem;
+            }
+        }
     </style>
 </head>
 <body>
