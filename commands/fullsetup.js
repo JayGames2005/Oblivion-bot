@@ -17,6 +17,7 @@ module.exports = {
             .setDescription('Choose a server template')
             .setRequired(true)
             .addChoices(
+              { name: '🤖 Bot Support & Coding', value: 'botsupport' },
               { name: '🎮 Gaming Community', value: 'gaming' },
               { name: '💬 General Community', value: 'community' },
               { name: '📚 Study/Education', value: 'study' },
@@ -229,6 +230,7 @@ module.exports = {
 
   getTemplateName(template) {
     const names = {
+      'botsupport': '🤖 Bot Support & Coding',
       'gaming': '🎮 Gaming Community',
       'community': '💬 General Community',
       'study': '📚 Study/Education',
@@ -244,6 +246,7 @@ module.exports = {
 
     // Template-based color customization
     const colors = {
+      botsupport: { owner: 0x5865F2, admin: 0x57F287, mod: 0xFEE75C },
       gaming: { owner: 0xFF0000, admin: 0xFF7700, mod: 0x00FF00 },
       community: { owner: 0x9B59B6, admin: 0x3498DB, mod: 0x2ECC71 },
       study: { owner: 0x1ABC9C, admin: 0x3498DB, mod: 0xE74C3C },
@@ -572,6 +575,39 @@ module.exports = {
 
     try {
       const templates = {
+        botsupport: [
+          { name: '📢-announcements', topic: 'Bot updates and server announcements' },
+          { name: '📜-rules', topic: 'Server rules and guidelines' },
+          { name: '📰-changelog', topic: 'Bot updates and patch notes' },
+          { name: '🔗-invite-bot', topic: 'Invite Oblivion to your server!' },
+          { name: '═══════════════', type: ChannelType.GuildCategory },
+          { name: '💬-GENERAL', type: ChannelType.GuildCategory },
+          { name: '💬-general-chat', topic: 'General discussion', category: 'general' },
+          { name: '🤖-bot-commands', topic: 'Test bot commands here', category: 'general' },
+          { name: '🎉-showcase', topic: 'Show off your servers and projects', category: 'general' },
+          { name: '💡-suggestions', topic: 'Suggest new features for the bot', category: 'general' },
+          { name: '═══════════════', type: ChannelType.GuildCategory },
+          { name: '🆘-SUPPORT', type: ChannelType.GuildCategory },
+          { name: '❓-help', topic: 'Get help with the bot', category: 'support' },
+          { name: '🐛-bug-reports', topic: 'Report bugs and issues', category: 'support' },
+          { name: '📚-tutorials', topic: 'Guides and tutorials', category: 'support' },
+          { name: '❓-faq', topic: 'Frequently asked questions', category: 'support' },
+          { name: '═══════════════', type: ChannelType.GuildCategory },
+          { name: '👨‍💻-CODING', type: ChannelType.GuildCategory },
+          { name: '💻-coding-chat', topic: 'General programming discussion', category: 'coding' },
+          { name: '🐍-python', topic: 'Python programming help', category: 'coding' },
+          { name: '🟨-javascript', topic: 'JavaScript/Node.js/Discord.js help', category: 'coding' },
+          { name: '🌐-web-dev', topic: 'HTML, CSS, React, and web development', category: 'coding' },
+          { name: '🔧-other-languages', topic: 'C++, Java, C#, and other languages', category: 'coding' },
+          { name: '💾-code-snippets', topic: 'Share useful code snippets', category: 'coding' },
+          { name: '🤝-collab', topic: 'Find collaborators for projects', category: 'coding' },
+          { name: '═══════════════', type: ChannelType.GuildCategory },
+          { name: '🔊-VOICE CHANNELS', type: ChannelType.GuildCategory },
+          { name: '🎤 General Voice', type: ChannelType.GuildVoice, category: 'voice' },
+          { name: '💻 Coding Session', type: ChannelType.GuildVoice, category: 'voice' },
+          { name: '🆘 Help Voice', type: ChannelType.GuildVoice, category: 'voice' },
+          { name: '🎮 Gaming', type: ChannelType.GuildVoice, category: 'voice' }
+        ],
         gaming: [
           { name: '📢-announcements', topic: 'Server announcements and updates' },
           { name: '💬-general', topic: 'General discussion' },
@@ -621,11 +657,20 @@ module.exports = {
 
       const templateData = templates[template] || templates.minimal;
       let voiceCategory = null;
+      let generalCategory = null;
+      let supportCategory = null;
+      let codingCategory = null;
+      let currentCategory = null;
 
       for (const channelData of templateData) {
         try {
+          if (channelData.name === '═══════════════') {
+            // Skip separator
+            continue;
+          }
+
           if (channelData.type === ChannelType.GuildCategory) {
-            voiceCategory = await guild.channels.create({
+            currentCategory = await guild.channels.create({
               name: channelData.name,
               type: ChannelType.GuildCategory,
               permissionOverwrites: verificationRole ? [
@@ -634,12 +679,24 @@ module.exports = {
               ] : [],
               reason: 'Full server setup - Template category'
             });
-            setupData.categories.push(voiceCategory.id);
+            setupData.categories.push(currentCategory.id);
+
+            // Store reference based on category type
+            if (channelData.category === 'voice' || channelData.name.includes('VOICE')) {
+              voiceCategory = currentCategory;
+            } else if (channelData.name.includes('GENERAL')) {
+              generalCategory = currentCategory;
+            } else if (channelData.name.includes('SUPPORT')) {
+              supportCategory = currentCategory;
+            } else if (channelData.name.includes('CODING')) {
+              codingCategory = currentCategory;
+            }
           } else if (channelData.type === ChannelType.GuildVoice) {
+            const parentCategory = channelData.category === 'voice' ? voiceCategory : currentCategory;
             const vc = await guild.channels.create({
               name: channelData.name,
               type: ChannelType.GuildVoice,
-              parent: voiceCategory?.id,
+              parent: parentCategory?.id,
               permissionOverwrites: verificationRole ? [
                 { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
                 { id: verificationRole.id, allow: [PermissionFlagsBits.ViewChannel] }
@@ -649,10 +706,25 @@ module.exports = {
             setupData.channels.push(vc.id);
             channels.push(vc);
           } else {
+            // Determine parent category
+            let parentCategory = null;
+            if (channelData.category === 'general') {
+              parentCategory = generalCategory;
+            } else if (channelData.category === 'support') {
+              parentCategory = supportCategory;
+            } else if (channelData.category === 'coding') {
+              parentCategory = codingCategory;
+            } else if (channelData.category === 'voice') {
+              parentCategory = voiceCategory;
+            } else {
+              parentCategory = currentCategory;
+            }
+
             const ch = await guild.channels.create({
               name: channelData.name,
               type: ChannelType.GuildText,
               topic: channelData.topic,
+              parent: parentCategory?.id,
               permissionOverwrites: verificationRole ? [
                 { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
                 { id: verificationRole.id, allow: [PermissionFlagsBits.ViewChannel] }
