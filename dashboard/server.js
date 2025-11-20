@@ -128,6 +128,9 @@ module.exports = function(client) {
           defaults.automod.antiLink ? 1 : 0,
           JSON.stringify(defaults.automod.bannedWords)
         );
+        // Initialize level-up and achievement messages (enabled by default)
+        await DatabaseHelper.updateLevelUpMessages(guildId, 1);
+        await DatabaseHelper.updateAchievementMessages(guildId, 1);
         settings = await DatabaseHelper.getGuildSettings(guildId);
       }
 

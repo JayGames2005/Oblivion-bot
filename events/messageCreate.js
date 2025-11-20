@@ -36,7 +36,7 @@ module.exports = {
         // Level up announcement (if enabled in settings)
         if (newLevel > oldLevel) {
           const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
-          const levelUpEnabled = !settings || settings.level_up_messages === undefined || settings.level_up_messages === 1;
+          const levelUpEnabled = settings?.level_up_messages !== 0;
           
           if (levelUpEnabled) {
             const levelUpEmbed = new EmbedBuilder()
@@ -131,7 +131,7 @@ module.exports = {
           
           // Check if achievement announcements are enabled
           const guildSettings = await DatabaseHelper.getGuildSettings(message.guild.id);
-          const achievementMessagesEnabled = !guildSettings || guildSettings.achievement_messages === undefined || guildSettings.achievement_messages === 1;
+          const achievementMessagesEnabled = guildSettings?.achievement_messages !== 0;
           
           if (achievementMessagesEnabled) {
             const achievementEmbed = new EmbedBuilder()

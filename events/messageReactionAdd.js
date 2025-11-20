@@ -100,7 +100,7 @@ async function checkReactionAchievements(guild, member, userData, achievementSet
 
     // Check if achievement announcements are enabled
     const guildSettings = await DatabaseHelper.getGuildSettings(guild.id);
-    const achievementMessagesEnabled = !guildSettings || guildSettings.achievement_messages === undefined || guildSettings.achievement_messages === 1;
+    const achievementMessagesEnabled = guildSettings?.achievement_messages !== 0;
 
     // Find a text channel to announce
     if (achievementMessagesEnabled) {
