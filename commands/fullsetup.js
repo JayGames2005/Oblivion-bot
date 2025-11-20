@@ -8,7 +8,8 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    await interaction.reply({ content: '🔧 Starting full server setup... This may take a moment.', ephemeral: true });
+    // Instant reply to avoid timeout
+    await interaction.reply({ content: '🔧 Starting full server setup... This may take a moment.', flags: 64 });
 
     try {
       const guild = interaction.guild;
@@ -16,17 +17,23 @@ module.exports = {
       const createdChannels = [];
       const errors = [];
 
-      // ===== STEP 1: Create Staff Roles =====
+      // Get bot's highest role position for hierarchy
+      const botMember = await guild.members.fetch(guild.members.me.id);
+      const botHighestRole = botMember.roles.highest;
+      let currentPosition = botHighestRole.position - 1; // Start below bot's role
+
+      // ===== STEP 1: Create Staff Roles (with proper hierarchy) =====
       let ownerRole, adminRole, modRole;
 
       try {
-        // Owner Role - All permissions
+        // Owner Role - All permissions (highest staff role)
         ownerRole = await guild.roles.create({
           name: '👑 Owner',
           color: 0xFF0000, // Red
           permissions: [
             PermissionFlagsBits.Administrator
           ],
+          position: currentPosition--,
           hoist: true,
           mentionable: false,
           reason: 'Oblivion Bot Full Setup'
@@ -56,6 +63,7 @@ module.exports = {
             PermissionFlagsBits.MuteMembers,
             PermissionFlagsBits.DeafenMembers
           ],
+          position: currentPosition--,
           hoist: true,
           mentionable: true,
           reason: 'Oblivion Bot Full Setup'
@@ -78,6 +86,7 @@ module.exports = {
             PermissionFlagsBits.MuteMembers,
             PermissionFlagsBits.DeafenMembers
           ],
+          position: currentPosition--,
           hoist: true,
           mentionable: true,
           reason: 'Oblivion Bot Full Setup'
@@ -87,118 +96,134 @@ module.exports = {
         errors.push(`Failed to create staff roles: ${error.message}`);
       }
 
-      // ===== STEP 2: Create Achievement Roles =====
+      // ===== STEP 2: Create Achievement Roles (ordered by tier) =====
       const achievementRoles = {};
       
       try {
-        // Message Achievement Roles
-        achievementRoles.msg_100_role = await guild.roles.create({
-          name: '💬 Newbie Chatter',
-          color: 0x95a5a6, // Gray
-          reason: 'Oblivion Bot Full Setup - 100 Messages'
-        });
-        createdRoles.push(achievementRoles.msg_100_role.name);
-
-        achievementRoles.msg_500_role = await guild.roles.create({
-          name: '📨 Active Chatter',
-          color: 0xCD7F32, // Bronze
-          reason: 'Oblivion Bot Full Setup - 500 Messages'
-        });
-        createdRoles.push(achievementRoles.msg_500_role.name);
-
-        achievementRoles.msg_1000_role = await guild.roles.create({
-          name: '📬 Dedicated Chatter',
-          color: 0xC0C0C0, // Silver
-          reason: 'Oblivion Bot Full Setup - 1K Messages'
-        });
-        createdRoles.push(achievementRoles.msg_1000_role.name);
-
-        achievementRoles.msg_5000_role = await guild.roles.create({
-          name: '📮 Elite Chatter',
-          color: 0xFFD700, // Gold
-          reason: 'Oblivion Bot Full Setup - 5K Messages'
-        });
-        createdRoles.push(achievementRoles.msg_5000_role.name);
-
+        // Diamond tier (highest)
         achievementRoles.msg_10000_role = await guild.roles.create({
           name: '💎 Legendary Chatter',
-          color: 0x00FFFF, // Diamond
+          color: 0x00FFFF,
+          position: currentPosition--,
           reason: 'Oblivion Bot Full Setup - 10K Messages'
         });
         createdRoles.push(achievementRoles.msg_10000_role.name);
 
-        // Voice Achievement Roles
-        achievementRoles.vc_30_role = await guild.roles.create({
-          name: '🎙️ Voice Beginner',
-          color: 0x95a5a6, // Gray
-          reason: 'Oblivion Bot Full Setup - 30min Voice'
-        });
-        createdRoles.push(achievementRoles.vc_30_role.name);
-
-        achievementRoles.vc_60_role = await guild.roles.create({
-          name: '🎤 Voice Active',
-          color: 0xCD7F32, // Bronze
-          reason: 'Oblivion Bot Full Setup - 60min Voice'
-        });
-        createdRoles.push(achievementRoles.vc_60_role.name);
-
-        achievementRoles.vc_500_role = await guild.roles.create({
-          name: '🔊 Voice Enthusiast',
-          color: 0xC0C0C0, // Silver
-          reason: 'Oblivion Bot Full Setup - 500min Voice'
-        });
-        createdRoles.push(achievementRoles.vc_500_role.name);
-
-        achievementRoles.vc_1000_role = await guild.roles.create({
-          name: '📻 Voice Expert',
-          color: 0xFFD700, // Gold
-          reason: 'Oblivion Bot Full Setup - 1000min Voice'
-        });
-        createdRoles.push(achievementRoles.vc_1000_role.name);
-
         achievementRoles.vc_5000_role = await guild.roles.create({
           name: '🎧 Voice Legend',
-          color: 0x00FFFF, // Diamond
+          color: 0x00FFFF,
+          position: currentPosition--,
           reason: 'Oblivion Bot Full Setup - 5000min Voice'
         });
         createdRoles.push(achievementRoles.vc_5000_role.name);
 
-        // Reaction Achievement Roles
-        achievementRoles.react_50_role = await guild.roles.create({
-          name: '👍 Reactor',
-          color: 0xCD7F32, // Bronze
-          reason: 'Oblivion Bot Full Setup - 50 Reactions Given'
+        // Gold tier
+        achievementRoles.msg_5000_role = await guild.roles.create({
+          name: '📮 Elite Chatter',
+          color: 0xFFD700,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 5K Messages'
         });
-        createdRoles.push(achievementRoles.react_50_role.name);
+        createdRoles.push(achievementRoles.msg_5000_role.name);
 
-        achievementRoles.react_250_role = await guild.roles.create({
-          name: '⭐ Super Reactor',
-          color: 0xC0C0C0, // Silver
-          reason: 'Oblivion Bot Full Setup - 250 Reactions Given'
+        achievementRoles.vc_1000_role = await guild.roles.create({
+          name: '📻 Voice Expert',
+          color: 0xFFD700,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 1000min Voice'
         });
-        createdRoles.push(achievementRoles.react_250_role.name);
+        createdRoles.push(achievementRoles.vc_1000_role.name);
 
         achievementRoles.react_1000_role = await guild.roles.create({
           name: '🌟 Mega Reactor',
-          color: 0xFFD700, // Gold
+          color: 0xFFD700,
+          position: currentPosition--,
           reason: 'Oblivion Bot Full Setup - 1000 Reactions Given'
         });
         createdRoles.push(achievementRoles.react_1000_role.name);
 
-        // Popularity Achievement Roles
+        achievementRoles.popular_500_role = await guild.roles.create({
+          name: '🌠 Superstar',
+          color: 0xFFD700,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 500 Reactions Received'
+        });
+        createdRoles.push(achievementRoles.popular_500_role.name);
+
+        // Silver tier
+        achievementRoles.msg_1000_role = await guild.roles.create({
+          name: '📬 Dedicated Chatter',
+          color: 0xC0C0C0,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 1K Messages'
+        });
+        createdRoles.push(achievementRoles.msg_1000_role.name);
+
+        achievementRoles.vc_500_role = await guild.roles.create({
+          name: '🔊 Voice Enthusiast',
+          color: 0xC0C0C0,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 500min Voice'
+        });
+        createdRoles.push(achievementRoles.vc_500_role.name);
+
+        achievementRoles.react_250_role = await guild.roles.create({
+          name: '⭐ Super Reactor',
+          color: 0xC0C0C0,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 250 Reactions Given'
+        });
+        createdRoles.push(achievementRoles.react_250_role.name);
+
         achievementRoles.popular_100_role = await guild.roles.create({
           name: '✨ Rising Star',
-          color: 0xC0C0C0, // Silver
+          color: 0xC0C0C0,
+          position: currentPosition--,
           reason: 'Oblivion Bot Full Setup - 100 Reactions Received'
         });
         createdRoles.push(achievementRoles.popular_100_role.name);
 
-        achievementRoles.popular_500_role = await guild.roles.create({
-          name: '🌠 Superstar',
-          color: 0xFFD700, // Gold
-          reason: 'Oblivion Bot Full Setup - 500 Reactions Received'
+        // Bronze tier
+        achievementRoles.msg_500_role = await guild.roles.create({
+          name: '📨 Active Chatter',
+          color: 0xCD7F32,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 500 Messages'
         });
-        createdRoles.push(achievementRoles.popular_500_role.name);
+        createdRoles.push(achievementRoles.msg_500_role.name);
+
+        achievementRoles.vc_60_role = await guild.roles.create({
+          name: '🎤 Voice Active',
+          color: 0xCD7F32,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 60min Voice'
+        });
+        createdRoles.push(achievementRoles.vc_60_role.name);
+
+        achievementRoles.react_50_role = await guild.roles.create({
+          name: '👍 Reactor',
+          color: 0xCD7F32,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 50 Reactions Given'
+        });
+        createdRoles.push(achievementRoles.react_50_role.name);
+
+        // Gray tier (lowest)
+        achievementRoles.msg_100_role = await guild.roles.create({
+          name: '💬 Newbie Chatter',
+          color: 0x95a5a6,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 100 Messages'
+        });
+        createdRoles.push(achievementRoles.msg_100_role.name);
+
+        achievementRoles.vc_30_role = await guild.roles.create({
+          name: '🎙️ Voice Beginner',
+          color: 0x95a5a6,
+          position: currentPosition--,
+          reason: 'Oblivion Bot Full Setup - 30min Voice'
+        });
+        createdRoles.push(achievementRoles.vc_30_role.name);
 
         // Save achievement role IDs to database
         await DatabaseHelper.setAchievementSettings(
