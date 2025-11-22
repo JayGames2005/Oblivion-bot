@@ -32,7 +32,12 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    try {
+      await interaction.deferReply({ flags: 64 });
+    } catch (error) {
+      console.error('Failed to defer reply:', error);
+      return; // Interaction already expired
+    }
 
     const subcommand = interaction.options.getSubcommand();
 
