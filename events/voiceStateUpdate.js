@@ -18,6 +18,7 @@ module.exports = {
       if (tempVCSettings && tempVCSettings.creator_channel_id) {
         // User joined the creator channel
         if (newState.channelId === tempVCSettings.creator_channel_id) {
+          console.log(`[TempVC] User ${member.user.tag} joined creator channel, creating temp channel...`);
           try {
             // Create a temporary voice channel for the user
             const tempChannel = await newState.guild.channels.create({
@@ -43,11 +44,14 @@ module.exports = {
               reason: `Temporary voice channel for ${member.user.tag}`
             });
 
+            console.log(`[TempVC] Created channel ${tempChannel.name} (${tempChannel.id})`);
+            
             // Track this as a temp channel
             tempChannels.set(tempChannel.id, userId);
 
             // Move the user to their new channel
             await member.voice.setChannel(tempChannel);
+            console.log(`[TempVC] Moved user to their new channel`);
 
           } catch (error) {
             console.error('Error creating temporary voice channel:', error);
@@ -60,14 +64,19 @@ module.exports = {
             tempChannels.has(oldState.channelId)) {
           const channel = oldState.channel;
           
+          console.log(`[TempVC] User left temp channel ${channel?.name}, checking if empty...`);
+          
           // If channel is empty, delete it
           if (channel && channel.members.size === 0) {
             try {
+              console.log(`[TempVC] Deleting empty channel ${channel.name}`);
               tempChannels.delete(channel.id);
               await channel.delete('Temporary voice channel is empty');
             } catch (error) {
               console.error('Error deleting temporary voice channel:', error);
             }
+          } else {
+            console.log(`[TempVC] Channel still has ${channel?.members.size} members`);
           }
         }
       }
