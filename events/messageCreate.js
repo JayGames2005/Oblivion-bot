@@ -5,6 +5,7 @@ const DatabaseHelper = require('../database-helper');
 // XP Cooldown tracking (in-memory)
 const xpCooldowns = new Map();
 const mentionCooldowns = new Map();
+const processedMessages = new Set(); // Track processed message IDs
 
 // Fun bot mention responses based on keywords
 function getBotResponse(content) {
@@ -121,6 +122,16 @@ module.exports = {
   async execute(message) {
     // Ignore bot messages and DMs
     if (message.author.bot || !message.guild) return;
+
+    // Prevent duplicate processing of the same message
+    if (processedMessages.has(message.id)) return;
+    processedMessages.add(message.id);
+    
+    // Clean up old processed messages (keep last 100)
+    if (processedMessages.size > 100) {
+      const firstItem = processedMessages.values().next().value;
+      processedMessages.delete(firstItem);
+    }
 
     // Bot mention responses (with cooldown to prevent spam)
     if (message.mentions.has(message.client.user)) {
