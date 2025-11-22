@@ -172,6 +172,12 @@ if (USE_POSTGRES) {
   try {
     db.exec(`ALTER TABLE guild_settings ADD COLUMN automod_banned_words_action TEXT DEFAULT 'delete'`);
   } catch (e) { /* Column already exists */ }
+  try {
+    db.exec(`ALTER TABLE guild_settings ADD COLUMN level_up_messages INTEGER DEFAULT 1`);
+  } catch (e) { /* Column already exists */ }
+  try {
+    db.exec(`ALTER TABLE guild_settings ADD COLUMN achievement_messages INTEGER DEFAULT 1`);
+  } catch (e) { /* Column already exists */ }
 
   // Prepared statements for better performance (SQLite only)
   statements = {

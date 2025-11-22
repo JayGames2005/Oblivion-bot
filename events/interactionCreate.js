@@ -4,6 +4,8 @@ const DatabaseHelper = require('../database-helper');
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction) {
+    // Only handle button interactions in this file
+    // Slash commands are handled in index.js
     if (!interaction.isButton()) return;
 
     // Handle giveaway entries
