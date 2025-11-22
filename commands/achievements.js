@@ -11,6 +11,8 @@ module.exports = {
         .setRequired(false)),
 
   async execute(interaction) {
+    await interaction.reply({ content: '🏆 Loading achievements...', flags: 64 });
+    
     try {
       const targetUser = interaction.options.getUser('user') || interaction.user;
       
