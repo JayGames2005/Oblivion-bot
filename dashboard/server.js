@@ -229,12 +229,10 @@ module.exports = function(client) {
       if (typeof antiLink !== 'undefined') {
         await DatabaseHelper.updateAutomodAntiLink(guildId, antiLink ? 1 : 0);
       }
-      if (typeof levelUpMessages !== 'undefined') {
-        await DatabaseHelper.updateLevelUpMessages(guildId, levelUpMessages ? 1 : 0);
-      }
-      if (typeof achievementMessages !== 'undefined') {
-        await DatabaseHelper.updateAchievementMessages(guildId, achievementMessages ? 1 : 0);
-      }
+      
+      // Always update these settings (unchecked checkboxes send undefined, which means disabled)
+      await DatabaseHelper.updateLevelUpMessages(guildId, levelUpMessages ? 1 : 0);
+      await DatabaseHelper.updateAchievementMessages(guildId, achievementMessages ? 1 : 0);
 
       // Save all 15 achievement role settings
       await DatabaseHelper.setAchievementSettings(
