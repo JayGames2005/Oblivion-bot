@@ -413,6 +413,31 @@ class DatabaseHelper {
       return rows.map(row => row.role_id);
     }
   }
+
+  // Temporary Voice Channels
+  static async setTempVCChannel(guildId, creatorChannelId, categoryId) {
+    if (isPostgres) {
+      await db.setTempVCChannel(guildId, creatorChannelId, categoryId);
+    } else {
+      statements.setTempVCChannel.run(guildId, creatorChannelId, categoryId);
+    }
+  }
+
+  static async getTempVCSettings(guildId) {
+    if (isPostgres) {
+      return await db.getTempVCSettings(guildId);
+    } else {
+      return statements.getTempVCSettings.get(guildId);
+    }
+  }
+
+  static async removeTempVCChannel(guildId) {
+    if (isPostgres) {
+      await db.removeTempVCChannel(guildId);
+    } else {
+      statements.removeTempVCChannel.run(guildId);
+    }
+  }
 }
 
 module.exports = DatabaseHelper;

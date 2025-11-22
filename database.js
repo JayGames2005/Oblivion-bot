@@ -145,6 +145,12 @@ if (USE_POSTGRES) {
       PRIMARY KEY (guild_id, user_id, role_id)
     );
 
+    CREATE TABLE IF NOT EXISTS temp_vc_settings (
+      guild_id TEXT PRIMARY KEY,
+      creator_channel_id TEXT,
+      category_id TEXT
+    );
+
     CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
     CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
     CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -333,6 +339,17 @@ if (USE_POSTGRES) {
       SELECT role_id FROM user_achievement_roles
       WHERE guild_id = ? AND user_id = ?
     `),
+
+    // Temporary Voice Channels
+    setTempVCChannel: db.prepare(`
+      INSERT INTO temp_vc_settings (guild_id, creator_channel_id, category_id)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id) DO UPDATE SET
+        creator_channel_id = excluded.creator_channel_id,
+        category_id = excluded.category_id
+    `),
+    getTempVCSettings: db.prepare('SELECT * FROM temp_vc_settings WHERE guild_id = ?'),
+    removeTempVCChannel: db.prepare('DELETE FROM temp_vc_settings WHERE guild_id = ?'),
     
     db: db
   };

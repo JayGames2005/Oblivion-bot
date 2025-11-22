@@ -5,6 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('welcome')
     .setDescription('Configure welcome messages')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand(subcommand =>
       subcommand
         .setName('setup')

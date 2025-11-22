@@ -125,6 +125,12 @@ class PostgresDatabase {
           PRIMARY KEY (guild_id, user_id, role_id)
         );
 
+        CREATE TABLE IF NOT EXISTS temp_vc_settings (
+          guild_id TEXT PRIMARY KEY,
+          creator_channel_id TEXT,
+          category_id TEXT
+        );
+
         CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
         CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
         CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
@@ -553,6 +559,32 @@ class PostgresDatabase {
       [guildId, userId]
     );
     return result.rows.map(row => row.role_id);
+  }
+
+  // Temporary Voice Channels
+  async setTempVCChannel(guildId, creatorChannelId, categoryId) {
+    await this.pool.query(`
+      INSERT INTO temp_vc_settings (guild_id, creator_channel_id, category_id)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id) DO UPDATE SET
+        creator_channel_id = EXCLUDED.creator_channel_id,
+        category_id = EXCLUDED.category_id
+    `, [guildId, creatorChannelId, categoryId]);
+  }
+
+  async getTempVCSettings(guildId) {
+    const result = await this.pool.query(
+      'SELECT * FROM temp_vc_settings WHERE guild_id = $1',
+      [guildId]
+    );
+    return result.rows[0];
+  }
+
+  async removeTempVCChannel(guildId) {
+    await this.pool.query(
+      'DELETE FROM temp_vc_settings WHERE guild_id = $1',
+      [guildId]
+    );
   }
 
   async close() {

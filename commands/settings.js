@@ -7,6 +7,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('settings')
     .setDescription('Configure bot settings')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand(subcommand =>
       subcommand
         .setName('view')

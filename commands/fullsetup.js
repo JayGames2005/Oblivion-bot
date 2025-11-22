@@ -8,6 +8,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('fullsetup')
     .setDescription('Complete server setup with templates and customization')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand(subcommand =>
       subcommand
         .setName('create')

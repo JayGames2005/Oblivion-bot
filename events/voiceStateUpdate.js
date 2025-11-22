@@ -1,5 +1,8 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const DatabaseHelper = require('../database-helper');
+
+// Track active temporary channels
+const tempChannels = new Map(); // channelId -> ownerId
 
 module.exports = {
   name: Events.VoiceStateUpdate,
@@ -9,6 +12,65 @@ module.exports = {
       const guildId = newState.guild.id;
       const userId = member.id;
 
+      // ===== TEMPORARY VOICE CHANNEL LOGIC =====
+      const tempVCSettings = await DatabaseHelper.getTempVCSettings(guildId);
+      
+      if (tempVCSettings && tempVCSettings.creator_channel_id) {
+        // User joined the creator channel
+        if (newState.channelId === tempVCSettings.creator_channel_id) {
+          try {
+            // Create a temporary voice channel for the user
+            const tempChannel = await newState.guild.channels.create({
+              name: `${member.user.username}'s Channel`,
+              type: 2, // Voice channel
+              parent: tempVCSettings.category_id,
+              permissionOverwrites: [
+                {
+                  id: newState.guild.id,
+                  allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect]
+                },
+                {
+                  id: userId,
+                  allow: [
+                    PermissionFlagsBits.ViewChannel,
+                    PermissionFlagsBits.Connect,
+                    PermissionFlagsBits.ManageChannels,
+                    PermissionFlagsBits.MoveMembers,
+                    PermissionFlagsBits.MuteMembers
+                  ]
+                }
+              ],
+              reason: `Temporary voice channel for ${member.user.tag}`
+            });
+
+            // Track this as a temp channel
+            tempChannels.set(tempChannel.id, userId);
+
+            // Move the user to their new channel
+            await member.voice.setChannel(tempChannel);
+
+          } catch (error) {
+            console.error('Error creating temporary voice channel:', error);
+          }
+        }
+
+        // User left a channel - check if we need to delete it
+        if (oldState.channelId && tempChannels.has(oldState.channelId)) {
+          const channel = oldState.channel;
+          
+          // If channel is empty, delete it
+          if (channel && channel.members.size === 0) {
+            try {
+              tempChannels.delete(channel.id);
+              await channel.delete('Temporary voice channel is empty');
+            } catch (error) {
+              console.error('Error deleting temporary voice channel:', error);
+            }
+          }
+        }
+      }
+
+      // ===== VOICE TIME TRACKING =====
       // User joined a voice channel
       if (!oldState.channelId && newState.channelId) {
         await DatabaseHelper.setUserVoiceJoined(guildId, userId, Date.now());
