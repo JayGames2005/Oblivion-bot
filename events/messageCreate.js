@@ -134,9 +134,14 @@ module.exports = {
         
         const responses = getBotResponse(message.content.toLowerCase());
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        await message.reply(randomResponse);
-        return; // Don't process automod or XP for bot mentions
+        
+        try {
+          await message.reply(randomResponse);
+        } catch (error) {
+          console.error('Error replying to mention:', error);
+        }
       }
+      return; // Always return early for mentions, even if on cooldown
     }
 
     // Check automod
