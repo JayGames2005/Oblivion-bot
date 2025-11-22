@@ -103,29 +103,36 @@ module.exports = {
           if (achievementSettings.msg_100_role) rolesToRemove.push(achievementSettings.msg_100_role);
           
           if (!member.roles.cache.has(roleToAdd)) {
-            achievementData = { key: 'msg_500', name: 'Active Chatter', emoji: '📨', count: '500', color: 0xCD7F32 };
+            achievementData = { key: 'msg_500', name: 'Dedicated Chatter', emoji: '📬', count: '500', color: 0xCD7F32 };
           }
         } else if (messages >= 100 && achievementSettings.msg_100_role) {
           roleToAdd = achievementSettings.msg_100_role;
           
           if (!member.roles.cache.has(roleToAdd)) {
-            achievementData = { key: 'msg_100', name: 'Newbie Chatter', emoji: '💬', count: '100', color: 0x95a5a6 };
+            achievementData = { key: 'msg_100', name: 'Active Chatter', emoji: '📨', count: '100', color: 0x95a5a6 };
+          }
+        } else if (messages >= 10) {
+          // Show achievement message for 10 messages even without a role
+          if (messages === 10) {
+            achievementData = { key: 'msg_10', name: 'Newbie Chatter', emoji: '💬', count: '10', color: 0x99AAB5 };
           }
         }
 
         // Grant role and announce
-        if (achievementData && roleToAdd) {
-          await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, achievementData.key);
-          await member.roles.add(roleToAdd);
+        if (achievementData) {
+          if (roleToAdd) {
+            await DatabaseHelper.addUserAchievement(message.guild.id, message.author.id, achievementData.key);
+            await member.roles.add(roleToAdd);
           
-          // Save role to database for persistence
-          await DatabaseHelper.addAchievementRole(message.guild.id, message.author.id, roleToAdd);
+            // Save role to database for persistence
+            await DatabaseHelper.addAchievementRole(message.guild.id, message.author.id, roleToAdd);
           
-          for (const roleId of rolesToRemove) {
-            if (member.roles.cache.has(roleId)) {
-              await member.roles.remove(roleId);
-              // Remove from database as well
-              await DatabaseHelper.removeAchievementRole(message.guild.id, message.author.id, roleId);
+            for (const roleId of rolesToRemove) {
+              if (member.roles.cache.has(roleId)) {
+                await member.roles.remove(roleId);
+                // Remove from database as well
+                await DatabaseHelper.removeAchievementRole(message.guild.id, message.author.id, roleId);
+              }
             }
           }
           

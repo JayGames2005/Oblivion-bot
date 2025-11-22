@@ -24,11 +24,12 @@ module.exports = {
 
       // Calculate progress
       const messageProgress = [
-        { name: '💬 Newbie Chatter', target: 100, emoji: '⬜', achieved: messages >= 100 },
-        { name: '📨 Active Chatter', target: 500, emoji: '🥉', achieved: messages >= 500 },
-        { name: '📬 Dedicated Chatter', target: 1000, emoji: '🥈', achieved: messages >= 1000 },
-        { name: '📮 Elite Chatter', target: 5000, emoji: '🥇', achieved: messages >= 5000 },
-        { name: '💎 Legendary Chatter', target: 10000, emoji: '💎', achieved: messages >= 10000 }
+        { name: '💬 Newbie Chatter', target: 10, emoji: '⬜', achieved: messages >= 10 },
+        { name: '📨 Active Chatter', target: 100, emoji: '⬜', achieved: messages >= 100 },
+        { name: '📬 Dedicated Chatter', target: 500, emoji: '🥉', achieved: messages >= 500 },
+        { name: '📮 Elite Chatter', target: 1000, emoji: '🥈', achieved: messages >= 1000 },
+        { name: '💎 Legendary Chatter', target: 5000, emoji: '🥇', achieved: messages >= 5000 },
+        { name: '🏆 Ultimate Chatter', target: 10000, emoji: '💎', achieved: messages >= 10000 }
       ];
 
       const voiceProgress = [
