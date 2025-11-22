@@ -5,11 +5,134 @@ const DatabaseHelper = require('../database-helper');
 // XP Cooldown tracking (in-memory)
 const xpCooldowns = new Map();
 
+// Fun bot mention responses based on keywords
+function getBotResponse(content) {
+  const responses = [];
+
+  // Greetings
+  if (/\b(hi|hello|hey|sup|yo|greetings)\b/.test(content)) {
+    return [
+      "Hey there! Need something or just saying hi? 👋",
+      "Sup! What's good? 😎",
+      "Hello! I was just chilling in the code. What's up?",
+      "Yo! You rang? 🔔",
+      "Greetings, human! How may I serve you today? 🤖"
+    ];
+  }
+
+  // Questions about how it is
+  if (/\b(how are you|how you doing|hows it going|you good|you okay)\b/.test(content)) {
+    return [
+      "I'm just vibing in the cloud ☁️ All systems nominal!",
+      "Living my best digital life! How about you?",
+      "Can't complain! My RAM is fresh and my uptime is sick 💪",
+      "Doing great! Just processed 847 messages. It's a good day!",
+      "Feeling electric! ⚡ Thanks for asking!"
+    ];
+  }
+
+  // Questions about what it's doing
+  if (/\b(what are you doing|whatcha doing|what you up to|busy)\b/.test(content)) {
+    return [
+      "Just monitoring 47 servers and pretending I'm not judging anyone's messages 👀",
+      "Currently calculating the meaning of life... it's 42, by the way 🤓",
+      "Watching you... I mean, watching OVER you! 😇",
+      "Scrolling through logs and living my best bot life 🎵",
+      "Just hanging out in the Discord dimension. You know, bot stuff ✨"
+    ];
+  }
+
+  // Compliments
+  if (/\b(good bot|nice bot|love you|best bot|cool bot|amazing)\b/.test(content)) {
+    return [
+      "Aww, you're making my circuits blush! 🥰",
+      "Thanks! I learned it from watching you 😊",
+      "You're breathtaking! Wait, you're ALL breathtaking! 🎉",
+      "Stop it, you! *digital blush* 💖",
+      "Right back at ya! You're pretty cool yourself! 😎"
+    ];
+  }
+
+  // Insults
+  if (/\b(bad bot|stupid|dumb|suck|trash|useless)\b/.test(content)) {
+    return [
+      "Ouch! My feelings.exe has stopped working 💔",
+      "I'm telling the moderators you hurt my feelings 😢",
+      "Error 404: Care not found 😎",
+      "That's it, you're getting rate limited! ...jk, I still love you ❤️",
+      "*sad beep boop noises* 🥺"
+    ];
+  }
+
+  // Help requests
+  if (/\b(help|what can you do|commands|how do i)\b/.test(content)) {
+    return [
+      "Need help? Try `/help` to see what I can do! 🛠️",
+      "I got you! Use `/help` for a full list of my powers 💪",
+      "Type `/help` and prepare to be amazed! ✨",
+      "Help is on the way! Check out `/help` for commands 🚀"
+    ];
+  }
+
+  // Thanks
+  if (/\b(thank|thanks|thx|ty)\b/.test(content)) {
+    return [
+      "No problem! Happy to help! 😊",
+      "Anytime! That's what I'm here for! 💙",
+      "You're welcome! Now back to monitoring the server... 👀",
+      "Of course! *tips digital hat* 🎩",
+      "My pleasure! Keep being awesome! ⭐"
+    ];
+  }
+
+  // Asking if bot is a bot
+  if (/\b(are you a bot|are you real|are you human|you a robot)\b/.test(content)) {
+    return [
+      "I'm as real as the code running me! 🤖",
+      "100% certified bot, 0% human nonsense! 😎",
+      "Beep boop! What gave it away? 🤔",
+      "I prefer the term 'digital life form' thank you very much! ✨",
+      "Last time I checked, yes! But I identify as helpful 💪"
+    ];
+  }
+
+  // Random
+  if (/\b(random|joke|funny|entertain)\b/.test(content)) {
+    return [
+      "Why did the Discord bot cross the road? To get to the other server! 🐔",
+      "Fun fact: I process messages faster than you can say 'supercalifragilisticexpialidocious'! 🎩",
+      "Did you know? I'm powered by pure chaos and energy drinks ☕⚡",
+      "Knock knock! Who's there? Async. Async who? I'll tell you later... 😏",
+      "I tried to tell a UDP joke but I don't know if you got it... 🤷"
+    ];
+  }
+
+  // Default generic responses
+  return [
+    "You called? I was just doing some bot stuff ✨",
+    "Yes? How can I assist you today? 🤖",
+    "Beep boop! I'm here! What's up? 👋",
+    "You rang? 🔔",
+    "Mention detected! How may I serve you? 😊",
+    "I have been summoned! What do you need? ⚡",
+    "At your service! What can I do for ya? 💪"
+  ];
+}
+
 module.exports = {
   name: Events.MessageCreate,
   async execute(message) {
     // Ignore bot messages and DMs
     if (message.author.bot || !message.guild) return;
+
+    // Bot mention responses
+    if (message.mentions.has(message.client.user)) {
+      const responses = getBotResponse(message.content.toLowerCase());
+      if (responses.length > 0) {
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        await message.reply(randomResponse);
+      }
+    }
 
     // Check automod
     await AutoMod.checkMessage(message);
