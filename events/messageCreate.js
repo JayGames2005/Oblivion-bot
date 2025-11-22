@@ -128,20 +128,23 @@ module.exports = {
       const lastMentionTime = mentionCooldowns.get(cooldownKey);
       const now = Date.now();
 
-      // 5 second cooldown between mention responses
-      if (!lastMentionTime || now - lastMentionTime >= 5000) {
-        mentionCooldowns.set(cooldownKey, now);
-        
-        const responses = getBotResponse(message.content.toLowerCase());
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        
-        try {
-          await message.reply(randomResponse);
-        } catch (error) {
-          console.error('Error replying to mention:', error);
-        }
+      // Only respond if not on cooldown
+      if (lastMentionTime && now - lastMentionTime < 5000) {
+        return; // On cooldown, exit early
       }
-      return; // Always return early for mentions, even if on cooldown
+      
+      mentionCooldowns.set(cooldownKey, now);
+      
+      const responses = getBotResponse(message.content.toLowerCase());
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      
+      try {
+        await message.reply(randomResponse);
+      } catch (error) {
+        console.error('Error replying to mention:', error);
+      }
+      
+      return; // Always return early for mentions
     }
 
     // Check automod
