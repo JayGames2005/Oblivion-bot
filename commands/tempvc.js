@@ -32,7 +32,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.reply({ content: '⏳ Processing...', flags: 64 });
+    await interaction.deferReply({ flags: 64 });
 
     const subcommand = interaction.options.getSubcommand();
 
