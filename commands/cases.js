@@ -30,6 +30,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.reply({ content: '⏳ Loading case data...', flags: 64 });
     const subcommand = interaction.options.getSubcommand();
 
     try {

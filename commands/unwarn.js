@@ -23,6 +23,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+    await interaction.reply({ content: '⏳ Removing warnings...', flags: 64 });
     
     const user = interaction.options.getUser('user');
     const amount = interaction.options.getInteger('amount') ?? 1;

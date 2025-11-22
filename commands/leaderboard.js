@@ -16,7 +16,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    await interaction.reply({ content: '📊 Loading leaderboard...' });
+    await interaction.reply({ content: '📊 Loading leaderboard...', flags: 64 });
 
     const timeframe = interaction.options.getString('timeframe') || 'alltime';
     
