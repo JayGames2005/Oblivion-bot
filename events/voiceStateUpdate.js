@@ -55,7 +55,9 @@ module.exports = {
         }
 
         // User left a channel - check if we need to delete it
-        if (oldState.channelId && tempChannels.has(oldState.channelId)) {
+        if (oldState.channelId && 
+            oldState.channelId !== tempVCSettings.creator_channel_id && 
+            tempChannels.has(oldState.channelId)) {
           const channel = oldState.channel;
           
           // If channel is empty, delete it
