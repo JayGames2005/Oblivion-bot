@@ -98,24 +98,8 @@ async function checkReactionAchievements(guild, member, userData, achievementSet
 
     await DatabaseHelper.addUserAchievement(guild.id, member.id, achievementUnlocked.key);
 
-    // Check if achievement announcements are enabled
-    const guildSettings = await DatabaseHelper.getGuildSettings(guild.id);
-    const achievementMessagesEnabled = guildSettings?.achievement_messages !== 0;
-
-    // Find a text channel to announce
-    if (achievementMessagesEnabled) {
-      const channel = guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
-      
-      if (channel) {
-        const achievementEmbed = new EmbedBuilder()
-          .setColor(achievementUnlocked.color)
-          .setTitle('🏆 Achievement Unlocked!')
-          .setDescription(`${member.user} earned the **${achievementUnlocked.name}** achievement!\n${achievementUnlocked.emoji} ${achievementUnlocked.description}`)
-          .setTimestamp();
-        
-        await channel.send({ embeds: [achievementEmbed] });
-      }
-    }
+    // Achievement announcements disabled (no public messages)
+    // Roles are still granted/removed and achievements are recorded in the database.
   }
 }
 

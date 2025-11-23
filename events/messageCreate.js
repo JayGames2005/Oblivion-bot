@@ -33,22 +33,8 @@ module.exports = {
         const oldLevel = Math.floor(0.1 * Math.sqrt(userData.xp - xpGain));
         const newLevel = Math.floor(0.1 * Math.sqrt(userData.xp));
 
-        // Level up announcement (if enabled in settings)
-        if (newLevel > oldLevel) {
-          const settings = await DatabaseHelper.getGuildSettings(message.guild.id);
-          const levelUpEnabled = settings?.level_up_messages !== 0;
-          
-          if (levelUpEnabled) {
-            const levelUpEmbed = new EmbedBuilder()
-              .setColor(0xFFD700)
-              .setTitle('🎉 Level Up!')
-              .setDescription(`${message.author} reached **Level ${newLevel}**!`)
-              .addFields({ name: 'Total XP', value: `${userData.xp.toLocaleString()}`, inline: true })
-              .setTimestamp();
-
-            await message.channel.send({ embeds: [levelUpEmbed] });
-          }
-        }
+        // Level up announcement disabled (no public messages)
+        // Keeping XP calculation and storage but intentionally not sending level-up messages.
       }
     } catch (error) {
       console.error('Error awarding XP:', error);
@@ -136,19 +122,8 @@ module.exports = {
             }
           }
           
-          // Check if achievement announcements are enabled
-          const guildSettings = await DatabaseHelper.getGuildSettings(message.guild.id);
-          const achievementMessagesEnabled = guildSettings?.achievement_messages !== 0;
-          
-          if (achievementMessagesEnabled) {
-            const achievementEmbed = new EmbedBuilder()
-              .setColor(achievementData.color)
-              .setTitle('🏆 Achievement Unlocked!')
-              .setDescription(`${message.author} earned the **${achievementData.name}** achievement!\n${achievementData.emoji} Sent ${achievementData.count} messages`)
-              .setTimestamp();
-            
-            await message.channel.send({ embeds: [achievementEmbed] });
-          }
+          // Achievement announcement disabled (no public messages)
+          // Roles are still granted/removed and achievements are recorded in the database.
         }
       }
     } catch (error) {
