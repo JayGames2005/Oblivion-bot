@@ -22,21 +22,24 @@ module.exports = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
-  await interaction.deferReply({ flags: 64 });
-
-    if (sub === 'set') {
-      const channel = interaction.options.getChannel('channel');
-      const emoji = interaction.options.getString('emoji') || '👍';
-      const threshold = interaction.options.getInteger('threshold') || 5;
-  await DatabaseHelper.setSlugboardSettings(guildId, channel.id, emoji, threshold);
-  await interaction.editReply({ content: `✅ Oblivionboard set to <#${channel.id}> with emoji ${emoji} and threshold ${threshold}` });
-    } else if (sub === 'view') {
-  const settings = await DatabaseHelper.getSlugboardSettings(guildId);
-      if (!settings) {
-  await interaction.editReply({ content: 'Oblivionboard is not configured.' });
-      } else {
-  await interaction.editReply({ content: `Oblivionboard channel: <#${settings.channel_id}>\nEmoji: ${settings.emoji}\nThreshold: ${settings.threshold}` });
+    await interaction.deferReply({ flags: 64 });
+    try {
+      if (sub === 'set') {
+        const channel = interaction.options.getChannel('channel');
+        const emoji = interaction.options.getString('emoji') || '👍';
+        const threshold = interaction.options.getInteger('threshold') || 5;
+        await DatabaseHelper.setSlugboardSettings(guildId, channel.id, emoji, threshold);
+        await interaction.editReply({ content: `✅ Oblivionboard set to <#${channel.id}> with emoji ${emoji} and threshold ${threshold}` });
+      } else if (sub === 'view') {
+        const settings = await DatabaseHelper.getSlugboardSettings(guildId);
+        if (!settings) {
+          await interaction.editReply({ content: 'Oblivionboard is not configured.' });
+        } else {
+          await interaction.editReply({ content: `Oblivionboard channel: <#${settings.channel_id}>\nEmoji: ${settings.emoji}\nThreshold: ${settings.threshold}` });
+        }
       }
+    } catch (err) {
+      await interaction.editReply({ content: `❌ Error: ${err.message || err}` });
     }
   }
 };
