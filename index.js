@@ -26,6 +26,7 @@ async function startBot() {
   client.commands = new Collection();
   client.cooldowns = new Collection();
   // Attach db instance to client for command access
+  const { db } = require('./database');
   client.db = db;
 
   // Load commands from commands folder
