@@ -1,6 +1,29 @@
 const { Pool } = require('pg');
 
 class PostgresDatabase {
+  // AI Daily Opt-in
+  async setAIDailyOptin(guildId, userId, type) {
+    await this.pool.query(`
+      INSERT INTO ai_daily_optin (guild_id, user_id, type)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET type = EXCLUDED.type
+    `, [guildId, userId, type]);
+  }
+
+  async getAIDailyOptin(guildId, userId) {
+    const result = await this.pool.query(
+      'SELECT type FROM ai_daily_optin WHERE guild_id = $1 AND user_id = $2',
+      [guildId, userId]
+    );
+    return result.rows[0] ? result.rows[0].type : null;
+  }
+
+  async removeAIDailyOptin(guildId, userId) {
+    await this.pool.query(
+      'DELETE FROM ai_daily_optin WHERE guild_id = $1 AND user_id = $2',
+      [guildId, userId]
+    );
+  }
 
   // Slugboard Settings
   async setSlugboardSettings(guildId, channelId, emoji, threshold) {
