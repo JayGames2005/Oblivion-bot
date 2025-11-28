@@ -1,6 +1,10 @@
 const { Pool } = require('pg');
 
 class PostgresDatabase {
+
+  async updateBannedWordsAction(action, guildId) {
+    await this.pool.query('UPDATE guild_settings SET automod_banned_words_action = $1 WHERE guild_id = $2', [action, guildId]);
+  }
   constructor(connectionString) {
     this.pool = new Pool({
       connectionString,

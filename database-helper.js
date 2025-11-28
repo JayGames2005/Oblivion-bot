@@ -1,8 +1,23 @@
+  static async updateBannedWordsAction(guildId, action) {
+    if (isPostgres) {
+      await db.updateBannedWordsAction(action, guildId);
+    } else {
+      statements.updateBannedWordsAction.run(action, guildId);
+    }
+  }
 // Unified database helper that works with both SQLite and PostgreSQL
 const { db, statements, isPostgres } = require('./database');
 
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
+
+  static async updateBannedWordsAction(guildId, action) {
+    if (isPostgres) {
+      await db.updateBannedWordsAction(action, guildId);
+    } else {
+      statements.updateBannedWordsAction.run(action, guildId);
+    }
+  }
   // Guild Settings
   static async getGuildSettings(guildId) {
     if (isPostgres) {
