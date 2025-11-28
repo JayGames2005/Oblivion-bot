@@ -105,7 +105,19 @@ class AutoMod {
    * Check for banned words
    */
   static checkBannedWords(content, bannedWords) {
-  console.log(`[AutoMod] Checking for banned words in: "${content}". Banned words:`, bannedWords);
+    console.log(`[AutoMod] Checking for banned words in: "${content}". Banned words:`, bannedWords);
+    if (!Array.isArray(bannedWords)) {
+      console.log('[AutoMod] ERROR: bannedWords is not an array:', bannedWords);
+      return false;
+    }
+    const lowerContent = typeof content === 'string' ? content.toLowerCase() : '';
+    for (const word of bannedWords) {
+      if (lowerContent.includes(word.toLowerCase())) {
+        console.log(`[AutoMod] MATCH FOUND: "${word}" in "${content}"`);
+        return true;
+      }
+    }
+    return false;
     const lowerContent = content.toLowerCase();
     return bannedWords.some(word => lowerContent.includes(word.toLowerCase()));
   }
