@@ -9,6 +9,7 @@ class AutoMod {
    * Check message for automod violations
    */
   static async checkMessage(message) {
+  console.log(`[AutoMod] Checking message: "${message.content}" in guild ${message.guild.id}`);
     if (!message.guild || message.author.bot) return;
 
     // Get guild settings
@@ -104,6 +105,7 @@ class AutoMod {
    * Check for banned words
    */
   static checkBannedWords(content, bannedWords) {
+  console.log(`[AutoMod] Checking for banned words in: "${content}". Banned words:`, bannedWords);
     const lowerContent = content.toLowerCase();
     return bannedWords.some(word => lowerContent.includes(word.toLowerCase()));
   }
@@ -112,6 +114,7 @@ class AutoMod {
    * Handle automod violation
    */
   static async handleViolation(message, type, action = 'delete') {
+  console.log(`[AutoMod] Handling violation: type=${type}, action=${action}, message="${message.content}"`);
     try {
       let shouldDelete = action === 'delete' || action === 'both';
       let shouldWarn = action === 'warn' || action === 'both';
