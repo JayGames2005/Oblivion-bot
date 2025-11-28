@@ -24,7 +24,7 @@ module.exports = {
     const sub = interaction.options.getSubcommand();
     const userId = interaction.user.id;
     const guildId = interaction.guild.id;
-    await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: 64 });
 
     if (sub === 'set') {
       const date = interaction.options.getString('date');

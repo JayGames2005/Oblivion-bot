@@ -25,7 +25,7 @@ module.exports = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
-    await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: 64 });
 
     if (sub === 'add') {
       const trigger = interaction.options.getString('trigger').toLowerCase();
