@@ -4,6 +4,22 @@ const { db, statements, isPostgres } = require('./database');
 
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
+  static async createCustomCommandsTable() {
+    if (isPostgres) {
+      await db.createCustomCommandsTable();
+    } else {
+      // SQLite: create table if not exists
+      statements.createCustomCommandsTable.run();
+    }
+  }
+
+  static async createBirthdaysTable() {
+    if (isPostgres) {
+      await db.createBirthdaysTable();
+    } else {
+      statements.createBirthdaysTable.run();
+    }
+  }
 
   static async updateBannedWordsAction(guildId, action) {
     if (isPostgres) {

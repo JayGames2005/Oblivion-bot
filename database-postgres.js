@@ -1,6 +1,29 @@
 const { Pool } = require('pg');
 
 class PostgresDatabase {
+  async createCustomCommandsTable() {
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS custom_commands (
+        id SERIAL PRIMARY KEY,
+        guild_id TEXT NOT NULL,
+        trigger TEXT NOT NULL,
+        response TEXT NOT NULL
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_custom_commands_guild_trigger ON custom_commands(guild_id, trigger);
+    `);
+  }
+
+  async createBirthdaysTable() {
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS birthdays (
+        id SERIAL PRIMARY KEY,
+        guild_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        date TEXT NOT NULL
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_birthdays_guild_user ON birthdays(guild_id, user_id);
+    `);
+  }
 
   async updateBannedWordsAction(action, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_banned_words_action = $1 WHERE guild_id = $2', [action, guildId]);
