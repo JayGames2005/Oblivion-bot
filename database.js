@@ -1,4 +1,3 @@
-  db.exec("CREATE TABLE IF NOT EXISTS ai_daily_optin (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, type TEXT NOT NULL, PRIMARY KEY (guild_id, user_id));");
 // Removed stray db.exec that caused ReferenceError
 const Database = require('better-sqlite3');
 const PostgresDatabase = require('./database-postgres');
