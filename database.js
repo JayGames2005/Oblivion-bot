@@ -1,3 +1,11 @@
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS rep (
+      guild_id TEXT NOT NULL,
+      giver_id TEXT NOT NULL,
+      receiver_id TEXT NOT NULL,
+      timestamp INTEGER NOT NULL,
+      PRIMARY KEY (guild_id, giver_id, receiver_id, timestamp)
+    );
 const Database = require('better-sqlite3');
 const PostgresDatabase = require('./database-postgres');
 const path = require('path');
@@ -39,135 +47,25 @@ if (USE_POSTGRES) {
   db.pragma('foreign_keys = ON');
 
   // Create tables
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS custom_commands (
-      guild_id TEXT NOT NULL,
-      trigger TEXT NOT NULL,
-      response TEXT NOT NULL,
-      PRIMARY KEY (guild_id, trigger)
-    );
-    CREATE TABLE IF NOT EXISTS birthdays (
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      date TEXT NOT NULL,
-      PRIMARY KEY (guild_id, user_id)
-    );
-    CREATE TABLE IF NOT EXISTS guild_settings (
-      guild_id TEXT PRIMARY KEY,
-      prefix TEXT DEFAULT '!',
-      mod_log_channel TEXT,
-      mute_role TEXT,
-      oblivion_log_channel TEXT,
-      automod_anti_spam INTEGER DEFAULT 0,
-      automod_anti_invite INTEGER DEFAULT 0,
-      automod_anti_link INTEGER DEFAULT 0,
-      automod_banned_words TEXT DEFAULT '[]',
-      automod_anti_spam_action TEXT DEFAULT 'delete',
-      automod_anti_invite_action TEXT DEFAULT 'delete',
-      automod_anti_link_action TEXT DEFAULT 'delete',
-      automod_banned_words_action TEXT DEFAULT 'delete',
-      level_up_messages INTEGER DEFAULT 1,
-      achievement_messages INTEGER DEFAULT 1
-    );
-
-    CREATE TABLE IF NOT EXISTS mod_cases (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      guild_id TEXT NOT NULL,
-      case_number INTEGER NOT NULL,
-      user_id TEXT NOT NULL,
-      user_tag TEXT NOT NULL,
-      moderator_id TEXT NOT NULL,
-      moderator_tag TEXT NOT NULL,
-      action TEXT NOT NULL,
-      reason TEXT,
-      created_at INTEGER NOT NULL,
-      UNIQUE(guild_id, case_number)
-    );
-
-    CREATE TABLE IF NOT EXISTS warnings (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      moderator_id TEXT NOT NULL,
-      reason TEXT,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS mutes (
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      expires_at INTEGER,
-      reason TEXT,
-      PRIMARY KEY (guild_id, user_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS user_xp (
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      xp INTEGER DEFAULT 0,
-      messages INTEGER DEFAULT 0,
-      last_message_at INTEGER DEFAULT 0,
-      weekly_xp INTEGER DEFAULT 0,
-      week_start INTEGER DEFAULT 0,
-      PRIMARY KEY (guild_id, user_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS welcome_settings (
-      guild_id TEXT PRIMARY KEY,
-      welcome_enabled INTEGER DEFAULT 0,
-      welcome_channel TEXT,
-      welcome_message TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS achievement_settings (
-      guild_id TEXT PRIMARY KEY,
-      msg_100_role TEXT,
-      msg_500_role TEXT,
-      msg_1000_role TEXT,
-      msg_5000_role TEXT,
-      msg_10000_role TEXT,
-      vc_30_role TEXT,
-      vc_60_role TEXT,
-      vc_500_role TEXT,
-      vc_1000_role TEXT,
-      vc_5000_role TEXT,
-      react_50_role TEXT,
-      react_250_role TEXT,
-      react_1000_role TEXT,
-      popular_100_role TEXT,
-      popular_500_role TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS user_achievements (
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      messages INTEGER DEFAULT 0,
-      voice_minutes INTEGER DEFAULT 0,
-      voice_joined_at INTEGER,
-      reactions_given INTEGER DEFAULT 0,
-      reactions_received INTEGER DEFAULT 0,
-      achievements TEXT DEFAULT '',
-      PRIMARY KEY (guild_id, user_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS user_achievement_roles (
-      guild_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      role_id TEXT NOT NULL,
-      PRIMARY KEY (guild_id, user_id, role_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS temp_vc_settings (
-      guild_id TEXT PRIMARY KEY,
-      creator_channel_id TEXT,
-      category_id TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);
-    CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);
-    CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);
-    CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);
-    CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);
+  db.exec("CREATE TABLE IF NOT EXISTS slugboard_settings (guild_id TEXT PRIMARY KEY, channel_id TEXT NOT NULL, emoji TEXT NOT NULL DEFAULT '👍', threshold INTEGER NOT NULL DEFAULT 5);");
+  db.exec("CREATE TABLE IF NOT EXISTS custom_commands (guild_id TEXT NOT NULL, trigger TEXT NOT NULL, response TEXT NOT NULL, PRIMARY KEY (guild_id, trigger));");
+  db.exec("CREATE TABLE IF NOT EXISTS birthdays (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, date TEXT NOT NULL, PRIMARY KEY (guild_id, user_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS rep (guild_id TEXT NOT NULL, giver_id TEXT NOT NULL, receiver_id TEXT NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (guild_id, giver_id, receiver_id, timestamp));");
+  db.exec("CREATE TABLE IF NOT EXISTS guild_settings (guild_id TEXT PRIMARY KEY, prefix TEXT DEFAULT '!', mod_log_channel TEXT, mute_role TEXT, oblivion_log_channel TEXT, automod_anti_spam INTEGER DEFAULT 0, automod_anti_invite INTEGER DEFAULT 0, automod_anti_link INTEGER DEFAULT 0, automod_banned_words TEXT DEFAULT '[]', automod_anti_spam_action TEXT DEFAULT 'delete', automod_anti_invite_action TEXT DEFAULT 'delete', automod_anti_link_action TEXT DEFAULT 'delete', automod_banned_words_action TEXT DEFAULT 'delete', level_up_messages INTEGER DEFAULT 1, achievement_messages INTEGER DEFAULT 1);");
+  db.exec("CREATE TABLE IF NOT EXISTS mod_cases (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT NOT NULL, case_number INTEGER NOT NULL, user_id TEXT NOT NULL, user_tag TEXT NOT NULL, moderator_id TEXT NOT NULL, moderator_tag TEXT NOT NULL, action TEXT NOT NULL, reason TEXT, created_at INTEGER NOT NULL, UNIQUE(guild_id, case_number));");
+  db.exec("CREATE TABLE IF NOT EXISTS warnings (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, moderator_id TEXT NOT NULL, reason TEXT, created_at INTEGER NOT NULL);");
+  db.exec("CREATE TABLE IF NOT EXISTS mutes (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, expires_at INTEGER, reason TEXT, PRIMARY KEY (guild_id, user_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS user_xp (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, xp INTEGER DEFAULT 0, messages INTEGER DEFAULT 0, last_message_at INTEGER DEFAULT 0, weekly_xp INTEGER DEFAULT 0, week_start INTEGER DEFAULT 0, PRIMARY KEY (guild_id, user_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS welcome_settings (guild_id TEXT PRIMARY KEY, welcome_enabled INTEGER DEFAULT 0, welcome_channel TEXT, welcome_message TEXT);");
+  db.exec("CREATE TABLE IF NOT EXISTS achievement_settings (guild_id TEXT PRIMARY KEY, msg_100_role TEXT, msg_500_role TEXT, msg_1000_role TEXT, msg_5000_role TEXT, msg_10000_role TEXT, vc_30_role TEXT, vc_60_role TEXT, vc_500_role TEXT, vc_1000_role TEXT, vc_5000_role TEXT, react_50_role TEXT, react_250_role TEXT, react_1000_role TEXT, popular_100_role TEXT, popular_500_role TEXT);");
+  db.exec("CREATE TABLE IF NOT EXISTS user_achievements (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, messages INTEGER DEFAULT 0, voice_minutes INTEGER DEFAULT 0, voice_joined_at INTEGER, reactions_given INTEGER DEFAULT 0, reactions_received INTEGER DEFAULT 0, achievements TEXT DEFAULT '', PRIMARY KEY (guild_id, user_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS user_achievement_roles (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, role_id TEXT NOT NULL, PRIMARY KEY (guild_id, user_id, role_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS temp_vc_settings (guild_id TEXT PRIMARY KEY, creator_channel_id TEXT, category_id TEXT);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_mod_cases_guild ON mod_cases(guild_id);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_mod_cases_user ON mod_cases(user_id);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);");
     CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
     CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
     CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
@@ -199,6 +97,13 @@ if (USE_POSTGRES) {
 
   // Prepared statements for better performance (SQLite only)
   statements = {
+    // Slugboard Settings
+    setSlugboardSettings: db.prepare(`
+      INSERT INTO slugboard_settings (guild_id, channel_id, emoji, threshold)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(guild_id) DO UPDATE SET channel_id = excluded.channel_id, emoji = excluded.emoji, threshold = excluded.threshold
+    `),
+    getSlugboardSettings: db.prepare('SELECT * FROM slugboard_settings WHERE guild_id = ?'),
     // Custom Commands
     addCustomCommand: db.prepare(`
       INSERT INTO custom_commands (guild_id, trigger, response)
@@ -387,7 +292,6 @@ if (USE_POSTGRES) {
     `),
     db: db
   };
-}
 
 module.exports = {
   db,

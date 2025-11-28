@@ -2,6 +2,20 @@ const { Pool } = require('pg');
 
 class PostgresDatabase {
 
+  // Slugboard Settings
+  async setSlugboardSettings(guildId, channelId, emoji, threshold) {
+    await this.pool.query(`
+      INSERT INTO slugboard_settings (guild_id, channel_id, emoji, threshold)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (guild_id) DO UPDATE SET channel_id = EXCLUDED.channel_id, emoji = EXCLUDED.emoji, threshold = EXCLUDED.threshold
+    `, [guildId, channelId, emoji, threshold]);
+  }
+
+  async getSlugboardSettings(guildId) {
+    const result = await this.pool.query('SELECT * FROM slugboard_settings WHERE guild_id = $1', [guildId]);
+    return result.rows[0] || null;
+  }
+
   // Custom Commands
   async addCustomCommand(guildId, trigger, response) {
     await this.pool.query(`
@@ -93,6 +107,12 @@ class PostgresDatabase {
     try {
       // Create tables
       await client.query(`
+        CREATE TABLE IF NOT EXISTS slugboard_settings (
+          guild_id TEXT PRIMARY KEY,
+          channel_id TEXT NOT NULL,
+          emoji TEXT NOT NULL DEFAULT '👍',
+          threshold INTEGER NOT NULL DEFAULT 5
+        );
         CREATE TABLE IF NOT EXISTS guild_settings (
           guild_id TEXT PRIMARY KEY,
           prefix TEXT DEFAULT '!',

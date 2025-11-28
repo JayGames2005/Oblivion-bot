@@ -6,6 +6,23 @@ const { db, statements, isPostgres } = require('./database');
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
 
+  // Slugboard Settings
+  static async setSlugboardSettings(guildId, channelId, emoji, threshold) {
+    if (isPostgres) {
+      await db.setSlugboardSettings(guildId, channelId, emoji, threshold);
+    } else {
+      statements.setSlugboardSettings.run(guildId, channelId, emoji, threshold);
+    }
+  }
+
+  static async getSlugboardSettings(guildId) {
+    if (isPostgres) {
+      return await db.getSlugboardSettings(guildId);
+    } else {
+      return statements.getSlugboardSettings.get(guildId);
+    }
+  }
+
   // Custom Commands
   static async addCustomCommand(guildId, trigger, response) {
     if (isPostgres) {

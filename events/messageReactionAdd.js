@@ -131,6 +131,28 @@ module.exports = {
 
       await checkReactionAchievements(guild, giverMember, giverData, achievementSettings, 'given');
 
+      // Slugboard logic
+      const slugboard = await DatabaseHelper.getSlugboardSettings(guild.id);
+      if (slugboard && reaction.emoji.name === slugboard.emoji) {
+        const count = reaction.count;
+        if (count === slugboard.threshold) {
+          const channel = guild.channels.cache.get(slugboard.channel_id);
+          if (channel && channel.isTextBased()) {
+            const author = reaction.message.author;
+            const embed = new EmbedBuilder()
+              .setAuthor({ name: author ? author.tag : 'Unknown', iconURL: author ? author.displayAvatarURL() : undefined })
+              .setDescription(reaction.message.content || '*No text content*')
+              .setColor(0xFFD700)
+              .addFields({ name: 'Jump', value: `[Go to Message](${reaction.message.url})` });
+            if (reaction.message.attachments.size > 0) {
+              const attachments = reaction.message.attachments.map(a => `[${a.name}](${a.url})`).join('\n');
+              embed.addFields({ name: '📎 Attachments', value: attachments.substring(0, 1024), inline: false });
+            }
+            await channel.send({ content: `⭐ **Slugboard!**`, embeds: [embed] });
+          }
+        }
+      }
+
       // Track reaction received (if different user)
       if (reaction.message.author && reaction.message.author.id !== user.id && !reaction.message.author.bot) {
         await DatabaseHelper.incrementReactionsReceived(guild.id, reaction.message.author.id);
