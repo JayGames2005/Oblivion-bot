@@ -118,8 +118,6 @@ class AutoMod {
       }
     }
     return false;
-    const lowerContent = content.toLowerCase();
-    return bannedWords.some(word => lowerContent.includes(word.toLowerCase()));
   }
 
   /**
