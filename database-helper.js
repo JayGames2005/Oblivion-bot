@@ -1,9 +1,70 @@
 
+
 // Unified database helper that works with both SQLite and PostgreSQL
 const { db, statements, isPostgres } = require('./database');
 
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
+
+  // Custom Commands
+  static async addCustomCommand(guildId, trigger, response) {
+    if (isPostgres) {
+      await db.addCustomCommand(guildId, trigger, response);
+    } else {
+      statements.addCustomCommand.run(guildId, trigger, response);
+    }
+  }
+
+  static async removeCustomCommand(guildId, trigger) {
+    if (isPostgres) {
+      await db.removeCustomCommand(guildId, trigger);
+    } else {
+      statements.removeCustomCommand.run(guildId, trigger);
+    }
+  }
+
+  static async getCustomCommands(guildId) {
+    if (isPostgres) {
+      return await db.getCustomCommands(guildId);
+    } else {
+      return statements.getCustomCommands.all(guildId);
+    }
+  }
+
+  // Birthday System
+  static async setBirthday(guildId, userId, date) {
+    if (isPostgres) {
+      await db.setBirthday(guildId, userId, date);
+    } else {
+      statements.setBirthday.run(guildId, userId, date);
+    }
+  }
+
+  static async getBirthday(guildId, userId) {
+    if (isPostgres) {
+      const row = await db.getBirthday(guildId, userId);
+      return row ? row.date : null;
+    } else {
+      const row = statements.getBirthday.get(guildId, userId);
+      return row ? row.date : null;
+    }
+  }
+
+  static async removeBirthday(guildId, userId) {
+    if (isPostgres) {
+      await db.removeBirthday(guildId, userId);
+    } else {
+      statements.removeBirthday.run(guildId, userId);
+    }
+  }
+
+  static async getNextBirthdays(guildId, limit = 10) {
+    if (isPostgres) {
+      return await db.getNextBirthdays(guildId, limit);
+    } else {
+      return statements.getNextBirthdays.all(guildId, limit);
+    }
+  }
   static async createCustomCommandsTable() {
     if (isPostgres) {
       await db.createCustomCommandsTable();
@@ -108,44 +169,42 @@ class DatabaseHelper {
       statements.updateAchievementMessages.run(enabled, guildId);
     }
   }
-  // Mod Cases
-  static async createModCase(guildId, caseNumber, userId, userTag, moderatorId, moderatorTag, action, reason, createdAt) {
+
+  // ...existing static methods...
+
+  // Birthday System
+  static async setBirthday(guildId, userId, date) {
     if (isPostgres) {
-      await db.createModCase(guildId, caseNumber, userId, userTag, moderatorId, moderatorTag, action, reason, createdAt);
+      await db.setBirthday(guildId, userId, date);
     } else {
-      statements.createModCase.run(guildId, caseNumber, userId, userTag, moderatorId, moderatorTag, action, reason, createdAt);
+      statements.setBirthday.run(guildId, userId, date);
     }
   }
 
-  static async getModCase(guildId, caseNumber) {
+  static async getBirthday(guildId, userId) {
     if (isPostgres) {
-      return await db.getModCase(guildId, caseNumber);
+      const row = await db.getBirthday(guildId, userId);
+      return row ? row.date : null;
     } else {
-      return statements.getModCase.get(guildId, caseNumber);
+      const row = statements.getBirthday.get(guildId, userId);
+      return row ? row.date : null;
     }
   }
 
-  static async getAllModCases(guildId) {
+  static async removeBirthday(guildId, userId) {
     if (isPostgres) {
-      return await db.getAllModCases(guildId);
+      await db.removeBirthday(guildId, userId);
     } else {
-      return statements.getAllModCases.all(guildId);
+      statements.removeBirthday.run(guildId, userId);
     }
   }
 
-  static async getUserModCases(guildId, userId) {
-    if (isPostgres) {
-      return await db.getUserModCases(guildId, userId);
-    } else {
-      return statements.getUserModCases.all(guildId, userId);
-    }
-  }
+  static async getNextBirthdays(guildId, limit = 10) {
 
-  static async getNextCaseNumber(guildId) {
     if (isPostgres) {
-      return await db.getNextCaseNumber(guildId);
+      return await db.getNextBirthdays(guildId, limit);
     } else {
-      return statements.getNextCaseNumber.get(guildId).next;
+      return statements.getNextBirthdays.all(guildId, limit);
     }
   }
 

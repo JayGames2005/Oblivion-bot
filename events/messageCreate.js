@@ -170,7 +170,15 @@ module.exports = {
       // Silently fail to avoid spam
     }
 
-    // Legacy text commands could be added here if needed
+    // Custom text commands with $ prefix
+    if (message.content.startsWith('$')) {
+      const [cmd, ...args] = message.content.slice(1).split(/\s+/);
+      const commands = await DatabaseHelper.getCustomCommands(message.guild.id);
+      const found = commands.find(c => c.trigger === cmd.toLowerCase());
+      if (found) {
+        await message.reply(found.response);
+      }
+    }
     // For now, we're using slash commands only
   }
 };

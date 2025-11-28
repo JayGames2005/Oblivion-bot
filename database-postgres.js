@@ -1,6 +1,52 @@
 const { Pool } = require('pg');
 
 class PostgresDatabase {
+
+  // Custom Commands
+  async addCustomCommand(guildId, trigger, response) {
+    await this.pool.query(`
+      INSERT INTO custom_commands (guild_id, trigger, response)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id, trigger) DO UPDATE SET response = EXCLUDED.response
+    `, [guildId, trigger, response]);
+  }
+
+  async removeCustomCommand(guildId, trigger) {
+    await this.pool.query('DELETE FROM custom_commands WHERE guild_id = $1 AND trigger = $2', [guildId, trigger]);
+  }
+
+  async getCustomCommands(guildId) {
+    const result = await this.pool.query('SELECT trigger, response FROM custom_commands WHERE guild_id = $1', [guildId]);
+    return result.rows;
+  }
+
+  // Birthday System
+  async setBirthday(guildId, userId, date) {
+    await this.pool.query(`
+      INSERT INTO birthdays (guild_id, user_id, date)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (guild_id, user_id) DO UPDATE SET date = EXCLUDED.date
+    `, [guildId, userId, date]);
+  }
+
+  async getBirthday(guildId, userId) {
+    const result = await this.pool.query('SELECT date FROM birthdays WHERE guild_id = $1 AND user_id = $2', [guildId, userId]);
+    return result.rows[0] || null;
+  }
+
+  async removeBirthday(guildId, userId) {
+    await this.pool.query('DELETE FROM birthdays WHERE guild_id = $1 AND user_id = $2', [guildId, userId]);
+  }
+
+  async getNextBirthdays(guildId, limit = 10) {
+    const result = await this.pool.query(`
+      SELECT user_id, date FROM birthdays
+      WHERE guild_id = $1
+      ORDER BY (to_char(date::date, 'MM-DD') >= to_char(NOW(), 'MM-DD')) DESC, to_char(date::date, 'MM-DD') ASC
+      LIMIT $2
+    `, [guildId, limit]);
+    return result.rows;
+  }
   async createCustomCommandsTable() {
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS custom_commands (

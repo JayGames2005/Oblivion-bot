@@ -40,6 +40,18 @@ if (USE_POSTGRES) {
 
   // Create tables
   db.exec(`
+    CREATE TABLE IF NOT EXISTS custom_commands (
+      guild_id TEXT NOT NULL,
+      trigger TEXT NOT NULL,
+      response TEXT NOT NULL,
+      PRIMARY KEY (guild_id, trigger)
+    );
+    CREATE TABLE IF NOT EXISTS birthdays (
+      guild_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      PRIMARY KEY (guild_id, user_id)
+    );
     CREATE TABLE IF NOT EXISTS guild_settings (
       guild_id TEXT PRIMARY KEY,
       prefix TEXT DEFAULT '!',
@@ -187,6 +199,14 @@ if (USE_POSTGRES) {
 
   // Prepared statements for better performance (SQLite only)
   statements = {
+    // Custom Commands
+    addCustomCommand: db.prepare(`
+      INSERT INTO custom_commands (guild_id, trigger, response)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id, trigger) DO UPDATE SET response = excluded.response
+    `),
+    removeCustomCommand: db.prepare('DELETE FROM custom_commands WHERE guild_id = ? AND trigger = ?'),
+    getCustomCommands: db.prepare('SELECT trigger, response FROM custom_commands WHERE guild_id = ?'),
     // Guild Settings
     getGuildSettings: db.prepare('SELECT * FROM guild_settings WHERE guild_id = ?'),
     setGuildSettings: db.prepare(`
@@ -351,6 +371,20 @@ if (USE_POSTGRES) {
     getTempVCSettings: db.prepare('SELECT * FROM temp_vc_settings WHERE guild_id = ?'),
     removeTempVCChannel: db.prepare('DELETE FROM temp_vc_settings WHERE guild_id = ?'),
     
+    // Birthday System
+    setBirthday: db.prepare(`
+      INSERT INTO birthdays (guild_id, user_id, date)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET date = excluded.date
+    `),
+    getBirthday: db.prepare('SELECT date FROM birthdays WHERE guild_id = ? AND user_id = ?'),
+    removeBirthday: db.prepare('DELETE FROM birthdays WHERE guild_id = ? AND user_id = ?'),
+    getNextBirthdays: db.prepare(`
+      SELECT user_id, date FROM birthdays
+      WHERE guild_id = ?
+      ORDER BY (strftime('%m-%d', date) >= strftime('%m-%d', 'now')), strftime('%m-%d', date) ASC
+      LIMIT ?
+    `),
     db: db
   };
 }
