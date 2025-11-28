@@ -6,6 +6,31 @@ const { db, statements, isPostgres } = require('./database');
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
 
+  // AI Daily Roast/Compliment Opt-in
+  static async setAIDailyOptin(guildId, userId, type) {
+    if (isPostgres) {
+      await db.setAIDailyOptin(guildId, userId, type);
+    } else {
+      statements.setAIDailyOptin.run(guildId, userId, type);
+    }
+  }
+
+  static async getAIDailyOptin(guildId, userId) {
+    if (isPostgres) {
+      return await db.getAIDailyOptin(guildId, userId);
+    } else {
+      return statements.getAIDailyOptin.get(guildId, userId);
+    }
+  }
+
+  static async removeAIDailyOptin(guildId, userId) {
+    if (isPostgres) {
+      await db.removeAIDailyOptin(guildId, userId);
+    } else {
+      statements.removeAIDailyOptin.run(guildId, userId);
+    }
+  }
+
   // Slugboard Settings
   static async setSlugboardSettings(guildId, channelId, emoji, threshold) {
     if (isPostgres) {

@@ -1,3 +1,4 @@
+  db.exec("CREATE TABLE IF NOT EXISTS ai_daily_optin (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, type TEXT NOT NULL, PRIMARY KEY (guild_id, user_id));");
 // Removed stray db.exec that caused ReferenceError
 const Database = require('better-sqlite3');
 const PostgresDatabase = require('./database-postgres');
@@ -89,6 +90,14 @@ if (USE_POSTGRES) {
 
   // Prepared statements for better performance (SQLite only)
   statements = {
+    // AI Roast/Compliment Opt-in
+    setAIDailyOptin: db.prepare(`
+      INSERT INTO ai_daily_optin (guild_id, user_id, type)
+      VALUES (?, ?, ?)
+      ON CONFLICT(guild_id, user_id) DO UPDATE SET type = excluded.type
+    `),
+    getAIDailyOptin: db.prepare('SELECT type FROM ai_daily_optin WHERE guild_id = ? AND user_id = ?'),
+    removeAIDailyOptin: db.prepare('DELETE FROM ai_daily_optin WHERE guild_id = ? AND user_id = ?'),
     // Slugboard Settings
     setSlugboardSettings: db.prepare(`
       INSERT INTO slugboard_settings (guild_id, channel_id, emoji, threshold)
