@@ -284,6 +284,7 @@ if (USE_POSTGRES) {
     `),
     db: db
   };
+}
 
 module.exports = {
   db,
