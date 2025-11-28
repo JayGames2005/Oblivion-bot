@@ -1,11 +1,4 @@
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS rep (
-      guild_id TEXT NOT NULL,
-      giver_id TEXT NOT NULL,
-      receiver_id TEXT NOT NULL,
-      timestamp INTEGER NOT NULL,
-      PRIMARY KEY (guild_id, giver_id, receiver_id, timestamp)
-    );
+// Removed stray db.exec that caused ReferenceError
 const Database = require('better-sqlite3');
 const PostgresDatabase = require('./database-postgres');
 const path = require('path');
@@ -66,11 +59,10 @@ if (USE_POSTGRES) {
   db.exec("CREATE INDEX IF NOT EXISTS idx_warnings_guild_user ON warnings(guild_id, user_id);");
   db.exec("CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);");
   db.exec("CREATE INDEX IF NOT EXISTS idx_user_xp_guild ON user_xp(guild_id);");
-    CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);
-    CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);
-    CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);
-    CREATE INDEX IF NOT EXISTS idx_user_achievement_roles_user ON user_achievement_roles(guild_id, user_id);
-  `);
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_xp_xp ON user_xp(guild_id, xp DESC);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_xp_weekly ON user_xp(guild_id, weekly_xp DESC);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_achievements_guild ON user_achievements(guild_id);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_achievement_roles_user ON user_achievement_roles(guild_id, user_id);");
 
   // Add new columns if they don't exist (migration)
   try {
