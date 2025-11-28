@@ -25,6 +25,8 @@ async function startBot() {
   // Collections to store commands
   client.commands = new Collection();
   client.cooldowns = new Collection();
+  // Attach db instance to client for command access
+  client.db = db;
 
   // Load commands from commands folder
   const commandsPath = path.join(__dirname, 'commands');
@@ -101,7 +103,7 @@ async function startBot() {
     setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
     try {
-      await command.execute(interaction, client);
+      await command.execute(interaction, client.db);
     } catch (error) {
       console.error(`Error executing ${interaction.commandName}:`, error);
       const message = { content: '❌ There was an error executing this command!', ephemeral: true };
