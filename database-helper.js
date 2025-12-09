@@ -5,6 +5,14 @@ const { db, statements, isPostgres } = require('./database');
 
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
+    // Get the next mod case number for a guild
+    static async getNextCaseNumber(guildId) {
+      if (isPostgres) {
+        return await db.getNextCaseNumber(guildId);
+      } else {
+        return statements.getNextCaseNumber.get(guildId).next;
+      }
+    }
   // Mod Cases: Get all mod cases for a guild
   static async getAllModCases(guildId) {
     if (isPostgres) {
