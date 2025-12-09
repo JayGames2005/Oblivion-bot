@@ -44,7 +44,7 @@ if (USE_POSTGRES) {
   db.exec("CREATE TABLE IF NOT EXISTS custom_commands (guild_id TEXT NOT NULL, trigger TEXT NOT NULL, response TEXT NOT NULL, PRIMARY KEY (guild_id, trigger));");
   db.exec("CREATE TABLE IF NOT EXISTS birthdays (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, date TEXT NOT NULL, PRIMARY KEY (guild_id, user_id));");
   db.exec("CREATE TABLE IF NOT EXISTS rep (guild_id TEXT NOT NULL, giver_id TEXT NOT NULL, receiver_id TEXT NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (guild_id, giver_id, receiver_id, timestamp));");
-  db.exec("CREATE TABLE IF NOT EXISTS guild_settings (guild_id TEXT PRIMARY KEY, prefix TEXT DEFAULT '!', mod_log_channel TEXT, mute_role TEXT, oblivion_log_channel TEXT, automod_anti_spam INTEGER DEFAULT 0, automod_anti_invite INTEGER DEFAULT 0, automod_anti_link INTEGER DEFAULT 0, automod_banned_words TEXT DEFAULT '[]', automod_anti_spam_action TEXT DEFAULT 'delete', automod_anti_invite_action TEXT DEFAULT 'delete', automod_anti_link_action TEXT DEFAULT 'delete', automod_banned_words_action TEXT DEFAULT 'delete', level_up_messages INTEGER DEFAULT 1, achievement_messages INTEGER DEFAULT 1);");
+  db.exec("CREATE TABLE IF NOT EXISTS guild_settings (guild_id TEXT PRIMARY KEY, prefix TEXT DEFAULT '!', mod_log_channel TEXT, mute_role TEXT, oblivion_log_channel TEXT, automod_anti_spam INTEGER DEFAULT 0, automod_anti_invite INTEGER DEFAULT 0, automod_anti_link INTEGER DEFAULT 0, automod_banned_words TEXT DEFAULT '[]', automod_anti_spam_action TEXT DEFAULT 'delete', automod_anti_invite_action TEXT DEFAULT 'delete', automod_anti_link_action TEXT DEFAULT 'delete', automod_banned_words_action TEXT DEFAULT 'delete');");
   db.exec("CREATE TABLE IF NOT EXISTS mod_cases (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT NOT NULL, case_number INTEGER NOT NULL, user_id TEXT NOT NULL, user_tag TEXT NOT NULL, moderator_id TEXT NOT NULL, moderator_tag TEXT NOT NULL, action TEXT NOT NULL, reason TEXT, created_at INTEGER NOT NULL, UNIQUE(guild_id, case_number));");
   db.exec("CREATE TABLE IF NOT EXISTS warnings (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, moderator_id TEXT NOT NULL, reason TEXT, created_at INTEGER NOT NULL);");
   db.exec("CREATE TABLE IF NOT EXISTS mutes (guild_id TEXT NOT NULL, user_id TEXT NOT NULL, expires_at INTEGER, reason TEXT, PRIMARY KEY (guild_id, user_id));");
@@ -80,12 +80,7 @@ if (USE_POSTGRES) {
   try {
     db.exec(`ALTER TABLE guild_settings ADD COLUMN automod_banned_words_action TEXT DEFAULT 'delete'`);
   } catch (e) { /* Column already exists */ }
-  try {
-    db.exec(`ALTER TABLE guild_settings ADD COLUMN level_up_messages INTEGER DEFAULT 1`);
-  } catch (e) { /* Column already exists */ }
-  try {
-    db.exec(`ALTER TABLE guild_settings ADD COLUMN achievement_messages INTEGER DEFAULT 1`);
-  } catch (e) { /* Column already exists */ }
+
 
   // Prepared statements for better performance (SQLite only)
   statements = {
@@ -124,8 +119,6 @@ if (USE_POSTGRES) {
     updateAutomodAntiInvite: db.prepare('UPDATE guild_settings SET automod_anti_invite = ? WHERE guild_id = ?'),
     updateAutomodAntiLink: db.prepare('UPDATE guild_settings SET automod_anti_link = ? WHERE guild_id = ?'),
     updateBannedWords: db.prepare('UPDATE guild_settings SET automod_banned_words = ? WHERE guild_id = ?'),
-    updateLevelUpMessages: db.prepare('UPDATE guild_settings SET level_up_messages = ? WHERE guild_id = ?'),
-    updateAchievementMessages: db.prepare('UPDATE guild_settings SET achievement_messages = ? WHERE guild_id = ?'),
 
     // Mod Cases
     createModCase: db.prepare(`

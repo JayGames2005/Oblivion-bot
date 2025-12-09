@@ -182,21 +182,6 @@ class DatabaseHelper {
     }
   }
 
-  static async updateLevelUpMessages(guildId, enabled) {
-    if (isPostgres) {
-      await db.updateLevelUpMessages(enabled, guildId);
-    } else {
-      statements.updateLevelUpMessages.run(enabled, guildId);
-    }
-  }
-
-  static async updateAchievementMessages(guildId, enabled) {
-    if (isPostgres) {
-      await db.updateAchievementMessages(enabled, guildId);
-    } else {
-      statements.updateAchievementMessages.run(enabled, guildId);
-    }
-  }
 
   // ...existing static methods...
 

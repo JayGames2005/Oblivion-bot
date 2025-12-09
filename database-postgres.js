@@ -126,9 +126,7 @@ class PostgresDatabase {
           automod_anti_spam_action TEXT DEFAULT 'delete',
           automod_anti_invite_action TEXT DEFAULT 'delete',
           automod_anti_link_action TEXT DEFAULT 'delete',
-          automod_banned_words_action TEXT DEFAULT 'delete',
-          level_up_messages INTEGER DEFAULT 1,
-          achievement_messages INTEGER DEFAULT 1
+          automod_banned_words_action TEXT DEFAULT 'delete'
         );
 
         CREATE TABLE IF NOT EXISTS mod_cases (
@@ -372,13 +370,6 @@ class PostgresDatabase {
     await this.pool.query('UPDATE guild_settings SET automod_anti_link = $1 WHERE guild_id = $2', [enabled, guildId]);
   }
 
-  async updateLevelUpMessages(enabled, guildId) {
-    await this.pool.query('UPDATE guild_settings SET level_up_messages = $1 WHERE guild_id = $2', [enabled, guildId]);
-  }
-
-  async updateAchievementMessages(enabled, guildId) {
-    await this.pool.query('UPDATE guild_settings SET achievement_messages = $1 WHERE guild_id = $2', [enabled, guildId]);
-  }
 
   async updateBannedWords(words, guildId) {
     await this.pool.query('UPDATE guild_settings SET automod_banned_words = $1 WHERE guild_id = $2', [words, guildId]);
