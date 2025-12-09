@@ -5,6 +5,17 @@ const { db, statements, isPostgres } = require('./database');
 
 // Helper to execute database operations with unified interface
 class DatabaseHelper {
+  // Mod Cases: Get all mod cases for a guild
+  static async getAllModCases(guildId) {
+    if (isPostgres) {
+      // Postgres: select all mod cases for the guild, order by case_number desc
+      const result = await db.pool.query('SELECT * FROM mod_cases WHERE guild_id = $1 ORDER BY case_number DESC', [guildId]);
+      return result.rows;
+    } else {
+      // SQLite: use prepared statement
+      return statements.getAllModCases.all(guildId);
+    }
+  }
 
   // Slugboard Settings
   static async setSlugboardSettings(guildId, channelId, emoji, threshold) {
