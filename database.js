@@ -54,8 +54,6 @@ if (USE_POSTGRES) {
       automod_anti_invite_action TEXT DEFAULT 'delete',
       automod_anti_link_action TEXT DEFAULT 'delete',
       automod_banned_words_action TEXT DEFAULT 'delete',
-      level_up_messages INTEGER DEFAULT 1,
-      achievement_messages INTEGER DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS mod_cases (

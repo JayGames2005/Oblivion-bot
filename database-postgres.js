@@ -37,9 +37,7 @@ class PostgresDatabase {
           automod_anti_spam_action TEXT DEFAULT 'delete',
           automod_anti_invite_action TEXT DEFAULT 'delete',
           automod_anti_link_action TEXT DEFAULT 'delete',
-          automod_banned_words_action TEXT DEFAULT 'delete',
-          level_up_messages INTEGER DEFAULT 1,
-          achievement_messages INTEGER DEFAULT 1
+          automod_banned_words_action TEXT DEFAULT 'delete'
         );
 
         CREATE TABLE IF NOT EXISTS mod_cases (
